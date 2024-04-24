@@ -21,14 +21,15 @@ resource "digitalocean_kubernetes_cluster" "primary" {
 
   maintenance_policy {
     start_time = "04:00"
-    day        = "sunday"
+    day        = "any"
   }
 
   node_pool {
-    name = "default"
+    name = "${var.cluster_name}-node-pool"
     size = var.node_size_slug
 
     auto_scale = true
+    min_nodes = 1
     max_nodes  = var.max_nodes
   }
 }
