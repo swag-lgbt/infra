@@ -24,7 +24,12 @@ data "onepassword_vault" "swag_lgbt" {
 
 data "onepassword_item" "digitalocean_access_token" {
   vault = data.onepassword_vault.swag_lgbt.uuid
-  title = "DigitalOcean Terraform Access Token"
+  title = "Tofu - DigitalOcean Access Token"
+}
+
+data "onepassword_item" "cloudflare_api_token" {
+  vault = data.onepassword_vault.swag_lgbt.uuid
+  title = "Tofu - Cloudflare API Token"
 }
 
 data "digitalocean_kubernetes_cluster" "primary" {

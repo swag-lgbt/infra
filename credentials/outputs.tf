@@ -6,6 +6,15 @@ output "digitalocean" {
   description = "Credentials for interacting with DigitalOcean resources"
 }
 
+
+output "cloudflare" {
+  value = {
+    api_token = data.onepassword_item.cloudflare_api_token.password
+  }
+  sensitive = true
+}
+
+
 output "kubernetes" {
   value = {
     host  = data.digitalocean_kubernetes_cluster.primary.endpoint
@@ -17,3 +26,9 @@ output "kubernetes" {
   sensitive = true
 }
 
+output "onepassword" {
+  value = {
+    service_account_token = var.onepassword_service_account_token
+  }
+  sensitive = true
+}

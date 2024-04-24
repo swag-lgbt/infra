@@ -14,7 +14,11 @@ terraform {
     }
     onepassword = {
       source  = "1Password/onepassword"
-      version = "~> 1.4.3"
+      version = "~> 1.4"
+    }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 4.30"
     }
   }
 }
@@ -22,11 +26,15 @@ terraform {
 # PROVIDERS
 
 provider "onepassword" {
-  service_account_token = var.onepassword_service_account_auth_token
+  service_account_token = var.onepassword_service_account_token
 }
 
 provider "digitalocean" {
   token = module.credentials.digitalocean.token
+}
+
+provider "cloudflare" {
+  api_token = module.credentials.cloudflare.api_token
 }
 
 provider "kubernetes" {
@@ -44,16 +52,19 @@ provider "helm" {
 }
 
 # Modules
+#
+# NOTICE: modules should be named in snake_case, not kebab-case
+# on account of this issue: https://github.com/helm/helm/issues/9731
 
 module "credentials" {
   source = "./credentials"
 
-  onepassword_service_account_token = var.onepassword_service_account_auth_token
-  kubernetes_cluster_name           = module.doks-cluster.cluster_name
+  onepassword_service_account_token = var.onepassword_service_account_token
+  kubernetes_cluster_name           = module.doks_cluster.cluster_name
 }
 
-module "doks-cluster" {
-  source = "./doks-cluster"
+module "doks_cluster" {
+  source = "./doks_cluster"
 
   name   = "swag-lgbt"
   region = var.digitalocean_region
@@ -65,3 +76,8 @@ module "doks-cluster" {
 
 # TODO: https://discuss.hashicorp.com/t/multiple-plan-apply-stages/8320/7
 
+module "secrets_injector" {
+  source = "./secrets_injector"
+
+  service_account_token = module.credentials.onepassword.service_account_token
+}
