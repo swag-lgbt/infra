@@ -8,12 +8,12 @@ terraform {
 }
 
 data "digitalocean_kubernetes_versions" "current" {
-  version_prefix = var.k8s_version
+  version_prefix = var.version_prefix
 }
 
 resource "digitalocean_kubernetes_cluster" "primary" {
-  name   = var.cluster_name
-  region = var.cluster_region
+  name   = "${var.name}-cluster"
+  region = var.region
 
   version       = data.digitalocean_kubernetes_versions.current.latest_version
   auto_upgrade  = true
@@ -25,11 +25,11 @@ resource "digitalocean_kubernetes_cluster" "primary" {
   }
 
   node_pool {
-    name = "${var.cluster_name}-node-pool"
+    name = "${var.name}-node-pool"
     size = var.node_size_slug
 
     auto_scale = true
-    min_nodes = 1
+    min_nodes  = 1
     max_nodes  = var.max_nodes
   }
 }
