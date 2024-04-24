@@ -4,10 +4,12 @@ output "host" {
 
 output "token" {
   value = data.digitalocean_kubernetes_cluster.primary.kube_config[0].token
+  sensitive = true
 }
 
 output "cluster_ca_certificate" {
   value = base64decode(
     data.digitalocean_kubernetes_cluster.primary.kube_config[0].cluster_ca_certificate
   )
+  sensitive = true
 }
