@@ -7,11 +7,18 @@ terraform {
   }
 }
 
+provider "onepassword" {
+  service_account_token = var.service_account_token
+}
+
+# TODO(BLOCKED): https://github.com/1Password/terraform-provider-onepassword/issues/52
+# all 1password items need to be "password"s...
+
 data "onepassword_vault" "swag_lgbt" {
   name = "swagLGBT"
 }
 
 data "onepassword_item" "digitalocean_access_token" {
   vault = data.onepassword_vault.swag_lgbt.uuid
-  title = "DigitalOcean Terraform PAT"
+  title = "DigitalOcean Terraform Access Token"
 }

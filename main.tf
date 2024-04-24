@@ -19,44 +19,34 @@ terraform {
   }
 }
 
-provider "onepassword" {
-  alias                 = "swag_lgbt_service_account"
-  service_account_token = var.onepassword_service_account_auth_token
-}
-
+# The first thing to do is get access to the credentials we need to set up infrastructure
+# We only pass in the one service account auth token for 1password, and keep the rest in there.
 module "credentials" {
   source = "./credentials"
 
-  providers = {
-    onepassword = onepassword.swag_lgbt_service_account
-  }
+  service_account_token = var.onepassword_service_account_auth_token
 }
 
+# Now that we've authenticated with 1password, we can authenticate with digitalocean
 
 provider "digitalocean" {
-  alias = "swag_lgbt_access_token"
   token = module.credentials.digitalocean_access_token
 }
 
 
 locals {
-  project_name        = "swag-lgbt"
   digitalocean_region = "nyc3"
 }
 
 module "doks-cluster" {
   source = "./doks-cluster"
 
-  name   = local.project_name
+  name   = "swag-lgbt"
   region = local.digitalocean_region
 
   version_prefix = var.k8s_version_prefix
   node_size_slug = var.doks_node_slug
   max_nodes      = var.max_k8s_nodes
-
-  providers = {
-    digitalocean = digitalocean.swag_lgbt_access_token
-  }
 }
 
 # TODO: this fails if the cluster isn't running already...
@@ -72,23 +62,17 @@ module "kubernetes-config" {
   cluster_id   = module.doks-cluster.cluster_id
 
   write_kubeconfig = var.write_kubeconfig
-
-    providers = {
-    digitalocean = digitalocean.swag_lgbt_access_token
-  }
 }
 
-provider "kubernetes" {
-  alias = "doks"
+# Once we've got kubernetes up and running, we should configure our providers to target that cluster
 
+provider "kubernetes" {
   host                   = module.kubernetes-config.host
   token                  = module.kubernetes-config.token
   cluster_ca_certificate = module.kubernetes-config.cluster_ca_certificate
 }
 
 provider "helm" {
-  alias = "doks"
-
   kubernetes {
     host                   = module.kubernetes-config.host
     token                  = module.kubernetes-config.token
@@ -96,6 +80,12 @@ provider "helm" {
   }
 }
 
+# Now we've configured
+# 1. Authentication with 1password
+# 2. The underlying DOKS cluster
+# 3. The k8s and helm providers
+#
+# Time to spin up some containers!
 
 # module "chat-server" {
 #   source = "./chat-server"
