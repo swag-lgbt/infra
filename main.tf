@@ -19,30 +19,48 @@ terraform {
   }
 }
 
-# The first thing to do is get access to the credentials we need to set up infrastructure
-# We only pass in the one service account auth token for 1password, and keep the rest in there.
-module "credentials" {
-  source = "./credentials"
+##########################
+#                        #
+# PROVIDER CONFIGURATION #
+#                        #
+##########################
 
+# Rather than passing a billion secrets to tofu, we just pass a 1password auth token
+# And get the rest of our credentials from 1password. they're exported via the credentials module.
+provider "onepassword" {
   service_account_token = var.onepassword_service_account_auth_token
 }
-
-# Now that we've authenticated with 1password, we can authenticate with digitalocean
 
 provider "digitalocean" {
   token = module.credentials.digitalocean_access_token
 }
 
+provider "kubernetes" {
+  host                   = module.credentials.kubernetes_host
+  token                  = module.credentials.kubernetes_token
+  cluster_ca_certificate = module.credentials.kubernetes_cluster_ca_certificate
+}
 
-locals {
-  digitalocean_region = "nyc3"
+provider "helm" {
+  kubernetes {
+    host                   = module.credentials.kubernetes_host
+    token                  = module.credentials.kubernetes_token
+    cluster_ca_certificate = module.credentials.kubernetes_cluster_ca_certificate
+  }
+}
+
+module "credentials" {
+  source = "./credentials"
+
+  onepassword_service_account_token = var.onepassword_service_account_auth_token
+  kubernetes_cluster_name           = module.doks-cluster.cluster_name
 }
 
 module "doks-cluster" {
   source = "./doks-cluster"
 
   name   = "swag-lgbt"
-  region = local.digitalocean_region
+  region = var.digitalocean_region
 
   version_prefix = var.k8s_version_prefix
   node_size_slug = var.doks_node_slug
@@ -52,33 +70,9 @@ module "doks-cluster" {
 # TODO: this fails if the cluster isn't running already...
 # https://discuss.hashicorp.com/t/multiple-plan-apply-stages/8320/7
 
-module "kubernetes-config" {
-  source = "./kubernetes-config"
-
-  # `cluster_name` and `cluster_id` need to be sourced from the `"doks_cluster"` module,
-  # not the main module, so that opentofu can figure out that it needs to provision the cluster
-  # before it can put stuff on it
-  cluster_name = module.doks-cluster.cluster_name
-  cluster_id   = module.doks-cluster.cluster_id
-
-  write_kubeconfig = var.write_kubeconfig
-}
 
 # Once we've got kubernetes up and running, we should configure our providers to target that cluster
 
-provider "kubernetes" {
-  host                   = module.kubernetes-config.host
-  token                  = module.kubernetes-config.token
-  cluster_ca_certificate = module.kubernetes-config.cluster_ca_certificate
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = module.kubernetes-config.host
-    token                  = module.kubernetes-config.token
-    cluster_ca_certificate = module.kubernetes-config.cluster_ca_certificate
-  }
-}
 
 # Now we've configured
 # 1. Authentication with 1password
@@ -86,6 +80,7 @@ provider "helm" {
 # 3. The k8s and helm providers
 #
 # Time to spin up some containers!
+# Starting with fun stuff like...
 
 # module "chat-server" {
 #   source = "./chat-server"

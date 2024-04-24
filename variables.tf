@@ -19,3 +19,8 @@ variable "write_kubeconfig" {
   type    = bool
   default = false
 }
+
+variable "digitalocean_region" {
+  type    = string
+  default = "nyc3"
+}
