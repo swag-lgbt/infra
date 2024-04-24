@@ -19,35 +19,31 @@ terraform {
   }
 }
 
-##########################
-#                        #
-# PROVIDER CONFIGURATION #
-#                        #
-##########################
+# PROVIDERS
 
-# Rather than passing a billion secrets to tofu, we just pass a 1password auth token
-# And get the rest of our credentials from 1password. they're exported via the credentials module.
 provider "onepassword" {
   service_account_token = var.onepassword_service_account_auth_token
 }
 
 provider "digitalocean" {
-  token = module.credentials.digitalocean_access_token
+  token = module.credentials.digitalocean.token
 }
 
 provider "kubernetes" {
-  host                   = module.credentials.kubernetes_host
-  token                  = module.credentials.kubernetes_token
-  cluster_ca_certificate = module.credentials.kubernetes_cluster_ca_certificate
+  host                   = module.credentials.kubernetes.host
+  token                  = module.credentials.kubernetes.token
+  cluster_ca_certificate = module.credentials.kubernetes.cluster_ca_certificate
 }
 
 provider "helm" {
   kubernetes {
-    host                   = module.credentials.kubernetes_host
-    token                  = module.credentials.kubernetes_token
-    cluster_ca_certificate = module.credentials.kubernetes_cluster_ca_certificate
+    host                   = module.credentials.kubernetes.host
+    token                  = module.credentials.kubernetes.token
+    cluster_ca_certificate = module.credentials.kubernetes.cluster_ca_certificate
   }
 }
+
+# Modules
 
 module "credentials" {
   source = "./credentials"
@@ -67,26 +63,5 @@ module "doks-cluster" {
   max_nodes      = var.max_k8s_nodes
 }
 
-# TODO: this fails if the cluster isn't running already...
-# https://discuss.hashicorp.com/t/multiple-plan-apply-stages/8320/7
+# TODO: https://discuss.hashicorp.com/t/multiple-plan-apply-stages/8320/7
 
-
-# Once we've got kubernetes up and running, we should configure our providers to target that cluster
-
-
-# Now we've configured
-# 1. Authentication with 1password
-# 2. The underlying DOKS cluster
-# 3. The k8s and helm providers
-#
-# Time to spin up some containers!
-# Starting with fun stuff like...
-
-# module "chat-server" {
-#   source = "./chat-server"
-
-#   providers = {
-#     kubernetes = kubernetes.doks
-#     helm       = helm.doks
-#   }
-# }
