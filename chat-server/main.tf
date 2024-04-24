@@ -68,7 +68,7 @@ resource "kubernetes_secret" "postgres_auth" {
 # Persistent volume for postgres db
 resource "kubernetes_stateful_set" "postgres" {
   metadata {
-    name = "postgres-statefulset"
+    name      = "postgres-statefulset"
     namespace = local.namespace
 
     labels = {
@@ -78,7 +78,7 @@ resource "kubernetes_stateful_set" "postgres" {
 
   spec {
     service_name = "postgres"
-    replicas = 1
+    replicas     = 1
     selector {
       match_labels = {
         app = "postgres"

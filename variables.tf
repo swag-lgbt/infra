@@ -10,11 +10,10 @@ variable "doks_node_slug" {
   default = "s-2vcpu-4gb"
 }
 
-# variable "digitalocean_access_token" {
-#   type = string
-#   sensitive = true
-#   default = ""
-# }
+variable "onepassword_service_account_auth_token" {
+  type      = string
+  sensitive = true
+}
 
 variable "write_kubeconfig" {
   type    = bool
