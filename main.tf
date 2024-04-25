@@ -78,6 +78,8 @@ module "subcluster" {
   source = "./subcluster"
 
   region = "nyc3"
+  # TODO: once we can synchronize ssh keys between DO, OP, and TF, we should...just waiting on OP...
+  ssh_keys = ["9d:98:09:73:06:15:0c:09:d9:63:fd:72:1e:e2:4a:8f"]
 
   kubernetes = {
     cluster = {

@@ -41,8 +41,7 @@ data "digitalocean_database_cluster" "swag_lgbt" {
 }
 
 
-
-resource "onepassword_item" "postgres_login_info" {
+resource "onepassword_item" "postgres_admin" {
   vault = data.onepassword_vault.swag_lgbt.uuid
 
   title = "DigitalOcean Managed Postgres"
@@ -59,3 +58,5 @@ resource "onepassword_item" "postgres_login_info" {
 
   tags = ["DigitalOcean"]
 }
+
+# TODO: Once we can synchronize SSH keys, we should...

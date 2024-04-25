@@ -51,3 +51,16 @@ module "postgres" {
     start_time = var.postgres.maintenance_policy.start_time
   }
 }
+
+module "ssh_bridge" {
+  source = "./ssh_bridge"
+
+  region   = var.region
+  vpc_uuid = digitalocean_vpc.swag_lgbt.id
+
+  droplet = {
+    name     = "swag-lgbt-access-bridge"
+    size     = "s-1vcpu-1gb"
+    ssh_keys = var.ssh_keys
+  }
+}
