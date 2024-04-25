@@ -38,16 +38,34 @@ provider "cloudflare" {
 }
 
 provider "kubernetes" {
-  host                   = module.credentials.kubernetes.host
-  token                  = module.credentials.kubernetes.token
-  cluster_ca_certificate = module.credentials.kubernetes.cluster_ca_certificate
+  host                   = module.credentials.kubernetes.primary_cluster.host
+  token                  = module.credentials.kubernetes.primary_cluster.token
+  cluster_ca_certificate = module.credentials.kubernetes.primary_cluster.cluster_ca_certificate
 }
 
 provider "helm" {
   kubernetes {
-    host                   = module.credentials.kubernetes.host
-    token                  = module.credentials.kubernetes.token
-    cluster_ca_certificate = module.credentials.kubernetes.cluster_ca_certificate
+    host                   = module.credentials.kubernetes.primary_cluster.host
+    token                  = module.credentials.kubernetes.primary_cluster.token
+    cluster_ca_certificate = module.credentials.kubernetes.primary_cluster.cluster_ca_certificate
+  }
+}
+
+provider "kubernetes" {
+  alias = "monitoring"
+
+  host                   = module.credentials.kubernetes.monitoring_cluster.host
+  token                  = module.credentials.kubernetes.monitoring_cluster.token
+  cluster_ca_certificate = module.credentials.kubernetes.monitoring_cluster.cluster_ca_certificate
+}
+
+provider "helm" {
+  alias = "monitoring"
+
+  kubernetes {
+    host                   = module.credentials.kubernetes.monitoring_cluster.host
+    token                  = module.credentials.kubernetes.monitoring_cluster.token
+    cluster_ca_certificate = module.credentials.kubernetes.monitoring_cluster.cluster_ca_certificate
   }
 }
 
@@ -64,8 +82,12 @@ module "credentials" {
   }
 
   kubernetes = {
-    cluster = {
-      name = module.subcluster.kubernetes.cluster.name
+    primary_cluster = {
+      name = module.subcluster.kubernetes.primary_cluster.name
+    }
+
+    monitoring_cluster = {
+      name = module.subcluster.kubernetes.monitoring_cluster.name
     }
   }
 
@@ -82,20 +104,39 @@ module "subcluster" {
   ssh_keys = ["9d:98:09:73:06:15:0c:09:d9:63:fd:72:1e:e2:4a:8f"]
 
   kubernetes = {
-    cluster = {
-      version_prefix = "1.29"
+    version_prefix = "1.29"
+    primary_cluster = {
+      ha = false
+
+      node_pool = {
+        min  = 1
+        max  = 3
+        size = "c-2"
+      }
+
+      maintenance_policy = {
+        start_time = "04:00"
+        day        = "friday"
+      }
     }
 
-    node_pool = {
-      min_nodes = 1
-      max_nodes = 3
-      size      = "c-2"
+    monitoring_cluster = {
+      ha = false
+
+
+      node_pool = {
+        min  = 1
+        max  = 3
+        size = "c-2"
+      }
+
+      maintenance_policy = {
+        start_time = "04:00"
+        day        = "friday"
+      }
     }
 
-    maintenance_policy = {
-      start_time = "04:00"
-      day        = "friday"
-    }
+
   }
 
   postgres = {

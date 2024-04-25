@@ -17,11 +17,21 @@ output "cloudflare" {
 
 output "kubernetes" {
   value = {
-    host  = data.digitalocean_kubernetes_cluster.swag_lgbt.endpoint
-    token = data.digitalocean_kubernetes_cluster.swag_lgbt.kube_config[0].token
-    cluster_ca_certificate = base64decode(
-      data.digitalocean_kubernetes_cluster.swag_lgbt.kube_config[0].cluster_ca_certificate
-    )
+    primary_cluster = {
+      host  = data.digitalocean_kubernetes_cluster.primary.endpoint
+      token = data.digitalocean_kubernetes_cluster.primary.kube_config[0].token
+      cluster_ca_certificate = base64decode(
+        data.digitalocean_kubernetes_cluster.primary.kube_config[0].cluster_ca_certificate
+      )
+    }
+
+    monitoring_cluster = {
+      host  = data.digitalocean_kubernetes_cluster.monitoring.endpoint
+      token = data.digitalocean_kubernetes_cluster.monitoring.kube_config[0].token
+      cluster_ca_certificate = base64decode(
+        data.digitalocean_kubernetes_cluster.monitoring.kube_config[0].cluster_ca_certificate
+      )
+    }
   }
   sensitive = true
 }

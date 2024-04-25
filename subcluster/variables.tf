@@ -8,19 +8,37 @@ variable "ssh_keys" {
 
 variable "kubernetes" {
   type = object({
-    cluster = object({
-      version_prefix = string
+    version_prefix = string
+
+    primary_cluster = object({
+      ha = bool
+
+      node_pool = object({
+        min  = number
+        max  = number
+        size = string
+      })
+
+      maintenance_policy = object({
+        start_time = string
+        day        = string
+      })
     })
 
-    node_pool = object({
-      min_nodes = number
-      max_nodes = number
-      size      = string
-    })
 
-    maintenance_policy = object({
-      start_time = string
-      day        = string
+    monitoring_cluster = object({
+      ha = bool
+
+      node_pool = object({
+        min  = number
+        max  = number
+        size = string
+      })
+
+      maintenance_policy = object({
+        start_time = string
+        day        = string
+      })
     })
   })
 }

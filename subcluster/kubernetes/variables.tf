@@ -1,27 +1,45 @@
-variable "cluster" {
+variable "region" {
+  type = string
+}
+
+variable "vpc_uuid" {
+  type = string
+}
+
+variable "primary_cluster" {
   type = object({
-    version_prefix = string
-    region         = string
-    vpc_uuid       = string
+    ha = bool
+
+    node_pool = object({
+      min  = number
+      max  = number
+      size = string
+    })
+
+    maintenance_policy = object({
+      start_time = string
+      day        = string
+    })
   })
 }
 
-variable "node_pool" {
-  type = object({
-    min_nodes = number
-    max_nodes = number
-    size      = string
-  })
-
-  validation {
-    condition     = var.node_pool.min_nodes >= 1
-    error_message = "Must assign at least one node"
-  }
+variable "version_prefix" {
+  type = string
 }
 
-variable "maintenance_policy" {
+variable "monitoring_cluster" {
   type = object({
-    start_time = string
-    day        = string
+    ha = bool
+
+    node_pool = object({
+      min  = number
+      max  = number
+      size = string
+    })
+
+    maintenance_policy = object({
+      start_time = string
+      day        = string
+    })
   })
 }

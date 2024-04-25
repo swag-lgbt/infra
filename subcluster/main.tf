@@ -15,22 +15,41 @@ resource "digitalocean_vpc" "swag_lgbt" {
 module "kubernetes" {
   source = "./kubernetes"
 
-  cluster = {
-    region         = var.region
-    version_prefix = var.kubernetes.cluster.version_prefix
-    vpc_uuid       = digitalocean_vpc.swag_lgbt.id
+  region         = var.region
+  vpc_uuid       = digitalocean_vpc.swag_lgbt.id
+  version_prefix = var.kubernetes.version_prefix
+
+  primary_cluster = {
+    ha = var.kubernetes.primary_cluster.ha
+
+    maintenance_policy = {
+      day        = var.kubernetes.primary_cluster.maintenance_policy.day
+      start_time = var.kubernetes.primary_cluster.maintenance_policy.start_time
+    }
+
+    node_pool = {
+      min  = var.kubernetes.primary_cluster.node_pool.min
+      max  = var.kubernetes.primary_cluster.node_pool.max
+      size = var.kubernetes.primary_cluster.node_pool.size
+    }
   }
 
-  maintenance_policy = {
-    day        = var.kubernetes.maintenance_policy.day
-    start_time = var.kubernetes.maintenance_policy.start_time
+  monitoring_cluster = {
+    ha = var.kubernetes.monitoring_cluster.ha
+
+    maintenance_policy = {
+      day        = var.kubernetes.monitoring_cluster.maintenance_policy.day
+      start_time = var.kubernetes.monitoring_cluster.maintenance_policy.start_time
+    }
+
+    node_pool = {
+      min  = var.kubernetes.monitoring_cluster.node_pool.min
+      max  = var.kubernetes.monitoring_cluster.node_pool.max
+      size = var.kubernetes.monitoring_cluster.node_pool.size
+    }
   }
 
-  node_pool = {
-    min_nodes = var.kubernetes.node_pool.min_nodes
-    max_nodes = var.kubernetes.node_pool.max_nodes
-    size      = var.kubernetes.node_pool.size
-  }
+
 }
 
 module "postgres" {
@@ -43,8 +62,16 @@ module "postgres" {
   size               = var.postgres.size
   storage_size_mib   = var.postgres.capacity_gib * 1024
 
-  pg_version            = var.postgres.version
-  kubernetes_cluster_id = module.kubernetes.cluster.id
+  pg_version = var.postgres.version
+
+  firewall = {
+    kubernetes_clusters = [
+      module.kubernetes.primary_cluster,
+      module.kubernetes.monitoring_cluster
+    ]
+
+    droplets = []
+  }
 
   maintenance_policy = {
     day        = var.postgres.maintenance_policy.day

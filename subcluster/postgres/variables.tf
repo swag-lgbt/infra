@@ -33,6 +33,14 @@ variable "pg_version" {
   type = number
 }
 
-variable "kubernetes_cluster_id" {
-  type = string
+variable "firewall" {
+  type = object({
+    kubernetes_clusters = set(object({
+      id = string
+    }))
+
+    droplets = set(object({
+      id = string
+    }))
+  })
 }

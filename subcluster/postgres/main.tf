@@ -31,8 +31,21 @@ resource "digitalocean_database_cluster" "postgres" {
 resource "digitalocean_database_firewall" "postgres_firewall" {
   cluster_id = digitalocean_database_cluster.postgres.id
 
-  rule {
-    type  = "k8s"
-    value = var.kubernetes_cluster_id
+  dynamic "rule" {
+    for_each = var.firewall.kubernetes_clusters
+
+    content {
+      type  = "k8s"
+      value = rule.value.id
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.firewall.droplets
+
+    content {
+      type  = "droplet"
+      value = rule.value.id
+    }
   }
 }

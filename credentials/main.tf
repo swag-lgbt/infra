@@ -32,8 +32,12 @@ data "onepassword_item" "cloudflare_api_token" {
   title = "Tofu - Cloudflare API Token"
 }
 
-data "digitalocean_kubernetes_cluster" "swag_lgbt" {
-  name = var.kubernetes.cluster.name
+data "digitalocean_kubernetes_cluster" "primary" {
+  name = var.kubernetes.primary_cluster.name
+}
+
+data "digitalocean_kubernetes_cluster" "monitoring" {
+  name = var.kubernetes.monitoring_cluster.name
 }
 
 data "digitalocean_database_cluster" "swag_lgbt" {

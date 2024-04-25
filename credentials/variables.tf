@@ -10,7 +10,11 @@ variable "onepassword" {
 
 variable "kubernetes" {
   type = object({
-    cluster = object({
+    primary_cluster = object({
+      name = string
+    })
+
+    monitoring_cluster = object({
       name = string
     })
   })
