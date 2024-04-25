@@ -1,3 +1,5 @@
+# https://developer.1password.com/docs/k8s/k8s-injector/?workflow-type=service-account
+
 terraform {
   required_providers {
     kubernetes = {
@@ -11,12 +13,17 @@ terraform {
   }
 }
 
+locals {
+  kubernetes_secret_name = "1password-service-account"
+  kubernetes_secret_key  = "token"
+}
+
 resource "kubernetes_secret" "onepassword_service_account_token" {
   metadata {
-    name = "1password-service-account-token"
+    name = local.kubernetes_secret_name
   }
 
-  data = { token = var.service_account_token }
+  data = { "${local.kubernetes_secret_key}" = var.service_account_token }
 }
 
 resource "kubernetes_labels" "secrets_injection_enabled" {
