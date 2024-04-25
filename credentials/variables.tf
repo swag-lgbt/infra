@@ -1,8 +1,27 @@
-variable "onepassword_service_account_token" {
-  type      = string
+
+
+variable "onepassword" {
+  type = object({
+    service_account_token = string
+  })
+
   sensitive = true
 }
 
-variable "kubernetes_cluster_name" {
-  type = string
+variable "kubernetes" {
+  type = object({
+    cluster = object({
+      name = string
+    })
+  })
+
+  sensitive = true
+}
+
+variable "postgres" {
+  type = object({
+    name = string
+  })
+
+  sensitive = true
 }

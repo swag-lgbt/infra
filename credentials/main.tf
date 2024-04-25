@@ -12,7 +12,7 @@ terraform {
 }
 
 provider "onepassword" {
-  service_account_token = var.onepassword_service_account_token
+  service_account_token = var.onepassword.service_account_token
 }
 
 # TODO(BLOCKED): https://github.com/1Password/terraform-provider-onepassword/issues/52
@@ -32,6 +32,30 @@ data "onepassword_item" "cloudflare_api_token" {
   title = "Tofu - Cloudflare API Token"
 }
 
-data "digitalocean_kubernetes_cluster" "primary" {
-  name = var.kubernetes_cluster_name
+data "digitalocean_kubernetes_cluster" "swag_lgbt" {
+  name = var.kubernetes.cluster.name
+}
+
+data "digitalocean_database_cluster" "swag_lgbt" {
+  name = var.postgres.name
+}
+
+
+
+resource "onepassword_item" "postgres_login_info" {
+  vault = data.onepassword_vault.swag_lgbt.uuid
+
+  title = "DigitalOcean Managed Postgres"
+
+  category = "database"
+  type     = "postgresql"
+
+  database = data.digitalocean_database_cluster.swag_lgbt.database
+  hostname = data.digitalocean_database_cluster.swag_lgbt.host
+  port     = data.digitalocean_database_cluster.swag_lgbt.port
+
+  username = data.digitalocean_database_cluster.swag_lgbt.user
+  password = data.digitalocean_database_cluster.swag_lgbt.password
+
+  tags = ["DigitalOcean"]
 }

@@ -17,10 +17,10 @@ output "cloudflare" {
 
 output "kubernetes" {
   value = {
-    host  = data.digitalocean_kubernetes_cluster.primary.endpoint
-    token = data.digitalocean_kubernetes_cluster.primary.kube_config[0].token
+    host  = data.digitalocean_kubernetes_cluster.swag_lgbt.endpoint
+    token = data.digitalocean_kubernetes_cluster.swag_lgbt.kube_config[0].token
     cluster_ca_certificate = base64decode(
-      data.digitalocean_kubernetes_cluster.primary.kube_config[0].cluster_ca_certificate
+      data.digitalocean_kubernetes_cluster.swag_lgbt.kube_config[0].cluster_ca_certificate
     )
   }
   sensitive = true
@@ -28,7 +28,7 @@ output "kubernetes" {
 
 output "onepassword" {
   value = {
-    service_account_token = var.onepassword_service_account_token
+    service_account_token = var.onepassword.service_account_token
   }
   sensitive = true
 }

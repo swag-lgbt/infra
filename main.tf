@@ -59,25 +59,60 @@ provider "helm" {
 module "credentials" {
   source = "./credentials"
 
-  onepassword_service_account_token = var.onepassword_service_account_token
-  kubernetes_cluster_name           = module.doks_cluster.cluster_name
+  onepassword = {
+    service_account_token = var.onepassword_service_account_token
+  }
+
+  kubernetes = {
+    cluster = {
+      name = module.subcluster.kubernetes.cluster.name
+    }
+  }
+
+  postgres = {
+    name = module.subcluster.postgres.name
+  }
 }
 
-module "doks_cluster" {
-  source = "./doks_cluster"
+module "subcluster" {
+  source = "./subcluster"
 
-  name   = "swag-lgbt"
-  region = var.digitalocean_region
+  region = "nyc3"
 
-  version_prefix = var.k8s_version_prefix
-  node_size_slug = var.doks_node_slug
-  max_nodes      = var.max_k8s_nodes
+  kubernetes = {
+    cluster = {
+      version_prefix = "1.29"
+    }
+
+    node_pool = {
+      min_nodes = 1
+      max_nodes = 3
+      size      = "c-2"
+    }
+
+    maintenance_policy = {
+      start_time = "04:00"
+      day        = "friday"
+    }
+  }
+
+  postgres = {
+    capacity_gib       = 30
+    standby_node_count = 1
+    size               = "db-s-1vcpu-2gb"
+    version            = 16
+
+    maintenance_policy = {
+      start_time = "04:00"
+      day        = "saturday"
+    }
+  }
 }
 
-# TODO: https://discuss.hashicorp.com/t/multiple-plan-apply-stages/8320/7
+module "intracluster" {
+  source = "./intracluster"
 
-module "secrets_injector" {
-  source = "./secrets_injector"
-
-  service_account_token = module.credentials.onepassword.service_account_token
+  onepassword = {
+    service_account_token = var.onepassword_service_account_token
+  }
 }
