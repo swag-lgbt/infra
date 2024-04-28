@@ -12,150 +12,105 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 2.13"
     }
-    onepassword = {
-      source  = "1Password/onepassword"
-      version = "~> 1.4"
-    }
     cloudflare = {
       source  = "cloudflare/cloudflare"
       version = "~> 4.30"
     }
+    onepassword = {
+      source  = "1Password/onepassword"
+      version = "~> 1.4"
+    }
   }
 }
 
-# PROVIDERS
-
+# We use credentials from the `onepassword` module to authenticate with cloud providers.
 provider "onepassword" {
   service_account_token = var.onepassword_service_account_token
 }
 
 provider "digitalocean" {
-  token = module.credentials.digitalocean.token
+  token = module.onepassword.credentials.digitalocean_access_token
 }
 
 provider "cloudflare" {
-  api_token = module.credentials.cloudflare.api_token
+  api_token = module.onepassword.credentials.cloudflare_api_token
 }
 
+
 provider "kubernetes" {
-  host                   = module.credentials.kubernetes.primary_cluster.host
-  token                  = module.credentials.kubernetes.primary_cluster.token
-  cluster_ca_certificate = module.credentials.kubernetes.primary_cluster.cluster_ca_certificate
+  host                   = module.infra.kubernetes.host
+  token                  = module.infra.kubernetes.token
+  cluster_ca_certificate = module.infra.kubernetes.cluster_ca_certificate
 }
 
 provider "helm" {
   kubernetes {
-    host                   = module.credentials.kubernetes.primary_cluster.host
-    token                  = module.credentials.kubernetes.primary_cluster.token
-    cluster_ca_certificate = module.credentials.kubernetes.primary_cluster.cluster_ca_certificate
+    host                   = module.infra.kubernetes.host
+    token                  = module.infra.kubernetes.token
+    cluster_ca_certificate = module.infra.kubernetes.cluster_ca_certificate
   }
 }
 
-provider "kubernetes" {
-  alias = "monitoring"
-
-  host                   = module.credentials.kubernetes.monitoring_cluster.host
-  token                  = module.credentials.kubernetes.monitoring_cluster.token
-  cluster_ca_certificate = module.credentials.kubernetes.monitoring_cluster.cluster_ca_certificate
+# The only credential passed in to tofu is a 1password service account token.
+# Every other credential is stored in 1password and accessed via that token.
+module "onepassword" {
+  source = "./1password"
 }
 
-provider "helm" {
-  alias = "monitoring"
+# Everything that sits below the application layer, e.g. VM's and databases,
+# lives in the ./infra module.
+module "infra" {
+  source = "./infra"
 
-  kubernetes {
-    host                   = module.credentials.kubernetes.monitoring_cluster.host
-    token                  = module.credentials.kubernetes.monitoring_cluster.token
-    cluster_ca_certificate = module.credentials.kubernetes.monitoring_cluster.cluster_ca_certificate
-  }
-}
-
-# Modules
-#
-# NOTICE: modules should be named in snake_case, not kebab-case
-# on account of this issue: https://github.com/helm/helm/issues/9731
-
-module "credentials" {
-  source = "./credentials"
-
-  onepassword = {
-    service_account_token = var.onepassword_service_account_token
-  }
+  region                 = "nyc3"
+  onepassword_vault_uuid = module.onepassword.vault_uuid
 
   kubernetes = {
-    primary_cluster = {
-      name = module.subcluster.kubernetes.primary_cluster.name
-    }
-
-    monitoring_cluster = {
-      name = module.subcluster.kubernetes.monitoring_cluster.name
-    }
-  }
-
-  postgres = {
-    name = module.subcluster.postgres.name
-  }
-}
-
-module "subcluster" {
-  source = "./subcluster"
-
-  region = "nyc3"
-  # TODO: once we can synchronize ssh keys between DO, OP, and TF, we should...just waiting on OP...
-  ssh_keys = ["9d:98:09:73:06:15:0c:09:d9:63:fd:72:1e:e2:4a:8f"]
-
-  kubernetes = {
+    ha             = false
     version_prefix = "1.29"
-    primary_cluster = {
-      ha = false
 
-      node_pool = {
-        min  = 1
-        max  = 3
-        size = "c-2"
-      }
+    node = {
+      size = "c-2"
 
-      maintenance_policy = {
-        start_time = "04:00"
-        day        = "friday"
+      pool = {
+        auto_scale = {
+          from = 1
+          to   = 3
+        }
       }
     }
-
-    monitoring_cluster = {
-      ha = false
-
-
-      node_pool = {
-        min  = 1
-        max  = 3
-        size = "c-2"
-      }
-
-      maintenance_policy = {
-        start_time = "04:00"
-        day        = "friday"
-      }
-    }
-
-
-  }
-
-  postgres = {
-    capacity_gib       = 30
-    standby_node_count = 1
-    size               = "db-s-1vcpu-2gb"
-    version            = 16
 
     maintenance_policy = {
-      start_time = "04:00"
       day        = "saturday"
+      start_time = "08:00"
+    }
+  }
+
+  postgres = {
+    version          = 16
+    storage_size_gib = 30
+
+    nodes = {
+      primary = {
+        size = "db-s-1vcpu-2gb"
+      }
+    }
+
+    maintenance_policy = {
+      day        = "sunday"
+      start_time = "08:00"
     }
   }
 }
 
-module "intracluster" {
-  source = "./intracluster"
+module "apps" {
+  source = "./apps"
 
   onepassword = {
     service_account_token = var.onepassword_service_account_token
+  }
+
+  kubernetes = {
+    namespace = "default"
   }
 }
