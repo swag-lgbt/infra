@@ -111,6 +111,6 @@ module "apps" {
   }
 
   kubernetes = {
-    namespace = "default"
+    namespace = "swag-lgbt-apps"
   }
 }
