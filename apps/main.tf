@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-
+/*
 module "secrets_injector" {
   source = "./secrets_injector"
 
@@ -32,9 +32,10 @@ module "matrix" {
     connection_pool_size = 4
   }
 }
+*/
 
-module "auth_frontend" {
-  source = "./auth_frontend"
+module "auth" {
+  source = "./auth"
 
   cloudflare = {
     account_id   = var.cloudflare.account_id
@@ -43,5 +44,4 @@ module "auth_frontend" {
   }
 
   subdomain = "auth"
-  out_dir   = var.out_dir
 }

@@ -57,13 +57,13 @@ module "onepassword" {
   source = "./1password"
 }
 
-data "cloudflare_accounts" "cass" {
-  name = "Cass Fridkin"
+locals {
+  cloudflare_account_id = "8046ced7e2c70129d1732280998af108"
 }
 
 data "cloudflare_zone" "swag_lgbt" {
-  account_id = data.cloudflare_accounts.cass.id
-  name       = "swag.lgbt"
+  account_id = local.cloudflare_account_id
+  zone_id    = "243f037e4db09925df6e0c04681b4971"
 }
 
 # Everything that sits below the application layer, e.g. VM's and databases,
@@ -125,9 +125,7 @@ module "apps" {
   }
 
   cloudflare = {
-    account_id = data.cloudflare_accounts.cass.id
+    account_id = local.cloudflare_account_id
     zone_id    = data.cloudflare_zone.swag_lgbt.id
   }
-
-  out_dir = "${path.root}/${var.out_dir}"
 }

@@ -20,6 +20,3 @@ variable "cloudflare" {
   })
 }
 
-variable "out_dir" {
-  type = string
-}

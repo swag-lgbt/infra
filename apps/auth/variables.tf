@@ -9,7 +9,3 @@ variable "cloudflare" {
 variable "subdomain" {
   type = string
 }
-
-variable "out_dir" {
-  type = string
-}

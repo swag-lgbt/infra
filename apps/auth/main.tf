@@ -7,7 +7,11 @@ terraform {
   }
 }
 
-resource "cloudflare_pages_project" "auth_frontend" {
+locals {
+  root_dir = trimprefix(path.module, path.root)
+}
+
+resource "cloudflare_pages_project" "auth" {
   account_id = var.cloudflare.account_id
   name       = var.cloudflare.project_name
 
@@ -15,14 +19,8 @@ resource "cloudflare_pages_project" "auth_frontend" {
 
   build_config {
     build_command   = "pnpm build"
-    destination_dir = "${var.out_dir}/${var.cloudflare.project_name}"
-    root_dir        = trimprefix(path.module, path.root)
-  }
-
-  deployment_configs {
-    production {
-      always_use_latest_compatibility_date = true
-    }
+    destination_dir = "${local.root_dir}/dist"
+    root_dir        = local.root_dir
   }
 
   source {
@@ -37,17 +35,17 @@ resource "cloudflare_pages_project" "auth_frontend" {
   }
 }
 
-resource "cloudflare_pages_domain" "auth_frontend" {
+resource "cloudflare_pages_domain" "auth" {
   account_id   = var.cloudflare.account_id
   domain       = "${var.subdomain}.swag.lgbt"
-  project_name = cloudflare_pages_project.auth_frontend.name
+  project_name = cloudflare_pages_project.auth.name
 }
 
-resource "cloudflare_record" "auth_frontend" {
+resource "cloudflare_record" "auth" {
   zone_id = var.cloudflare.zone_id
   name    = var.subdomain
-  value   = cloudflare_pages_project.auth_frontend.subdomain
+  value   = cloudflare_pages_project.auth.subdomain
   type    = "CNAME"
   proxied = true
-  ttl     = 3600
+  ttl     = 1
 }
