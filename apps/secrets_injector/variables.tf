@@ -6,9 +6,3 @@ variable "onepassword" {
 
   sensitive = true
 }
-
-variable "kubernetes" {
-  type = object({
-    namespace = string
-  })
-}

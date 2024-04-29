@@ -29,8 +29,3 @@ variable "postgres" {
   })
 }
 
-variable "kubernetes" {
-  type = object({
-    namespace = string
-  })
-}

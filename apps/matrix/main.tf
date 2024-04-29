@@ -108,8 +108,8 @@ resource "kubernetes_stateful_set" "matrix" {
 
           # Mount .pgpass file
           volume_mount {
-            name       = local.synapse.passfile.volume.name
-            mount_path = local.synapse.passfile.volume.mount_path
+            name       = local.postgres.passfile.volume.name
+            mount_path = local.postgres.passfile.volume.mount_path
           }
 
 
@@ -126,7 +126,7 @@ resource "kubernetes_stateful_set" "matrix" {
         }
 
         volume {
-          name = local.synapse.passfile.volume.name
+          name = local.postgres.passfile.volume.name
           secret {
             secret_name = kubernetes_secret.passfile.metadata[0].name
           }

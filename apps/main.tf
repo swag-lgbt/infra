@@ -7,21 +7,11 @@ terraform {
   }
 }
 
-resource "kubernetes_namespace" "apps" {
-  metadata {
-    name = "swag-lgbt-apps"
-  }
-}
-
-locals {
-  kubernetes_namespace = kubernetes_namespace.apps.metadata[0].name
-}
 
 module "secrets_injector" {
   source = "./secrets_injector"
 
   onepassword = var.onepassword
-  kubernetes  = { namespace = local.kubernetes_namespace }
 }
 
 module "matrix" {
@@ -40,9 +30,5 @@ module "matrix" {
   postgres = {
     cluster_id           = var.postgres.cluster_id
     connection_pool_size = 4
-  }
-
-  kubernetes = {
-    namespace = local.kubernetes_namespace
   }
 }

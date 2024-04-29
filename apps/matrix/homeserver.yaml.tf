@@ -29,18 +29,18 @@ locals {
     listeners = [
       {
         # https://element-hq.github.io/synapse/latest/manhole.html
-        port           = locals.ports.manhole,
+        port           = local.ports.manhole,
         bind_addresses = ["0.0.0.0", "::"]
         type           = "manhole"
       },
       {
         # https://element-hq.github.io/synapse/latest/metrics-howto.html#how-to-monitor-synapse-metrics-using-prometheus
-        port           = locals.ports.metrics
+        port           = local.ports.metrics
         bind_addresses = ["0.0.0.0", "::"]
         type           = "metrics"
       },
       {
-        port           = locals.ports.http
+        port           = local.ports.http
         bind_addresses = ["0.0.0.0", "::"]
         type           = "http"
 
@@ -80,12 +80,12 @@ locals {
       args = {
         # Postgres-specific args
         # https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
-        host = local.pg_host
-        port = local.pg_port
+        host = local.postgres.host
+        port = local.postgres.port
 
-        dbname   = local.pg_db_name
-        user     = local.pg_username
-        passfile = "${local.synapse.passfile.volume.mount_path}/${local.synapse.passfile.file_name}"
+        dbname   = local.postgres.db_name
+        user     = local.postgres.username
+        passfile = "${local.postgres.passfile.volume.mount_path}/${local.postgres.passfile.file_name}"
 
         application_name = "synapse"
 
