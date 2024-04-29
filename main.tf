@@ -21,6 +21,17 @@ terraform {
       version = "~> 1.4"
     }
   }
+
+  backend "s3" {
+    bucket = "tfstate"
+    # https://developers.cloudflare.com/r2/api/s3/api/#bucket-region
+    region = "auto"
+    key    = "swag-lgbt"
+
+    skip_credentials_validation = true
+    skip_region_validation      = true
+    skip_s3_checksum            = true
+  }
 }
 
 # We use credentials from the `onepassword` module to authenticate with cloud providers.

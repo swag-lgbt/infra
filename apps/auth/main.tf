@@ -21,6 +21,7 @@ resource "cloudflare_pages_project" "auth" {
     build_command   = "pnpm build"
     destination_dir = "dist"
     root_dir        = local.root_dir
+    build_caching   = true
   }
 
   source {
