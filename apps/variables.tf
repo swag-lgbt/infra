@@ -12,3 +12,14 @@ variable "postgres" {
     cluster_id = string
   })
 }
+
+variable "cloudflare" {
+  type = object({
+    account_id = string
+    zone_id    = string
+  })
+}
+
+variable "out_dir" {
+  type = string
+}

@@ -57,6 +57,15 @@ module "onepassword" {
   source = "./1password"
 }
 
+data "cloudflare_accounts" "cass" {
+  name = "Cass Fridkin"
+}
+
+data "cloudflare_zone" "swag_lgbt" {
+  account_id = data.cloudflare_accounts.cass.id
+  name       = "swag.lgbt"
+}
+
 # Everything that sits below the application layer, e.g. VM's and databases,
 # lives in the ./infra module.
 module "infra" {
@@ -114,4 +123,11 @@ module "apps" {
   postgres = {
     cluster_id = module.infra.postgres.id
   }
+
+  cloudflare = {
+    account_id = data.cloudflare_accounts.cass.id
+    zone_id    = data.cloudflare_zone.swag_lgbt.id
+  }
+
+  out_dir = "${path.root}/${var.out_dir}"
 }

@@ -32,3 +32,16 @@ module "matrix" {
     connection_pool_size = 4
   }
 }
+
+module "auth_frontend" {
+  source = "./auth_frontend"
+
+  cloudflare = {
+    account_id   = var.cloudflare.account_id
+    project_name = "swag-lgbt-auth"
+    zone_id      = var.cloudflare.zone_id
+  }
+
+  subdomain = "auth"
+  out_dir   = var.out_dir
+}
