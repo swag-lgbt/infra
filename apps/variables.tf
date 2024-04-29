@@ -1,13 +1,14 @@
 variable "onepassword" {
   type = object({
     service_account_token = string
+    vault_uuid            = string
   })
 
   sensitive = true
 }
 
-variable "kubernetes" {
+variable "postgres" {
   type = object({
-    namespace = string
+    cluster_id = string
   })
 }

@@ -10,3 +10,7 @@ output "secret_key_ref" {
 output "annotation" {
   value = "operator.1password.io/inject"
 }
+
+output "env_var_name" {
+  value = "OP_SERVICE_ACCOUNT_TOKEN"
+}

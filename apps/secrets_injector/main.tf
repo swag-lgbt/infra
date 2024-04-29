@@ -20,7 +20,8 @@ locals {
 
 resource "kubernetes_secret" "onepassword_service_account_token" {
   metadata {
-    name = local.kubernetes_secret_name
+    name      = local.kubernetes_secret_name
+    namespace = var.kubernetes_namespace
   }
 
   data = { (local.kubernetes_secret_key) = var.onepassword.service_account_token }
@@ -31,7 +32,7 @@ resource "kubernetes_labels" "secrets_injection_enabled" {
   kind        = "Namespace"
 
   metadata {
-    name = var.kubernetes.namespace
+    name = var.kubernetes_namespace
   }
 
   labels = {

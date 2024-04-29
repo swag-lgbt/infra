@@ -108,9 +108,10 @@ module "apps" {
 
   onepassword = {
     service_account_token = var.onepassword_service_account_token
+    vault_uuid            = module.onepassword.vault_uuid
   }
 
-  kubernetes = {
-    namespace = "swag-lgbt-apps"
+  postgres = {
+    cluster_id = module.infra.postgres.id
   }
 }
