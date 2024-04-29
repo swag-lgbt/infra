@@ -19,7 +19,7 @@ resource "cloudflare_pages_project" "auth" {
 
   build_config {
     build_command   = "pnpm build"
-    destination_dir = "${local.root_dir}/dist"
+    destination_dir = "dist"
     root_dir        = local.root_dir
   }
 
