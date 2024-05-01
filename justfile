@@ -1,12 +1,16 @@
 export VOLTA_FEATURE_PNPM := "1"
 
+[private]
 default:
-  @just --chose
+  @just --choose
 
 [macos]
 install-deps:
   @which brew >/dev/null 2>&1 || ( echo "You need to install homebrew: See https://brew.sh/" && exit 1 )
   brew update
+
+  # You need `fzf` for `just --choose` apparently...
+  which fzf >/dev/null 2>&1 || brew install fzf
 
   # Install `tenv` to manage tofu versions, and detect & install the appropriate version
   brew install tofuutils/tap/tenv
