@@ -9,6 +9,6 @@
     "output.selfClosingStyle": "xhtml"
   },
   "files.associations": {
-    ".hcl": "terraform"
+    "*.hcl": "terraform"
   }
 }

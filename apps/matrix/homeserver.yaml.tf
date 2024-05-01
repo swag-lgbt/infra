@@ -24,7 +24,7 @@ locals {
     serve_server_wellknown = true
 
     require_auth_for_profile_requests = true
-    default_room_version              = "${var.matrix.default_room_version}"
+    default_room_version              = var.matrix.default_room_version
 
     listeners = [
       {

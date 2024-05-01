@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-/*
 module "secrets_injector" {
   source = "./secrets_injector"
 
@@ -32,7 +31,6 @@ module "matrix" {
     connection_pool_size = 4
   }
 }
-*/
 
 module "auth" {
   source = "./auth"
