@@ -1,4 +1,6 @@
 terraform {
+  required_version = "~> 1.6.2"
+
   required_providers {
     digitalocean = {
       source  = "digitalocean/digitalocean"
@@ -16,10 +18,6 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 4.30"
     }
-    onepassword = {
-      source  = "1Password/onepassword"
-      version = "~> 1.4"
-    }
   }
 
   backend "s3" {
@@ -34,17 +32,12 @@ terraform {
   }
 }
 
-# We use credentials from the `onepassword` module to authenticate with cloud providers.
-provider "onepassword" {
-  service_account_token = var.onepassword_service_account_token
-}
-
 provider "digitalocean" {
-  token = module.onepassword.credentials.digitalocean_access_token
+  token = module.data.onepassword.credentials.digitalocean_access_token
 }
 
 provider "cloudflare" {
-  api_token = module.onepassword.credentials.cloudflare_api_token
+  api_token = module.data.onepassword.credentials.cloudflare_api_token
 }
 
 
@@ -64,17 +57,8 @@ provider "helm" {
 
 # The only credential passed in to tofu is a 1password service account token.
 # Every other credential is stored in 1password and accessed via that token.
-module "onepassword" {
-  source = "./1password"
-}
-
-locals {
-  cloudflare_account_id = "8046ced7e2c70129d1732280998af108"
-}
-
-data "cloudflare_zone" "swag_lgbt" {
-  account_id = local.cloudflare_account_id
-  zone_id    = "243f037e4db09925df6e0c04681b4971"
+module "data" {
+  source = "./tofu"
 }
 
 # Everything that sits below the application layer, e.g. VM's and databases,
@@ -83,7 +67,7 @@ module "infra" {
   source = "./infra"
 
   region                 = "nyc3"
-  onepassword_vault_uuid = module.onepassword.vault_uuid
+  onepassword_vault_uuid = module.data.onepassword.vault_uuid
 
   kubernetes = {
     ha             = false
@@ -123,12 +107,13 @@ module "infra" {
   }
 }
 
+
 module "apps" {
   source = "./apps"
 
   onepassword = {
-    service_account_token = var.onepassword_service_account_token
-    vault_uuid            = module.onepassword.vault_uuid
+    service_account_token = module.data.onepassword.credentials.onepassword_service_account_token
+    vault_uuid            = module.data.onepassword.vault_uuid
   }
 
   postgres = {
@@ -136,7 +121,7 @@ module "apps" {
   }
 
   cloudflare = {
-    account_id = local.cloudflare_account_id
-    zone_id    = data.cloudflare_zone.swag_lgbt.id
+    account_id = module.data.cloudflare.account_id
+    zone_id    = module.data.cloudflare.zone_id
   }
 }

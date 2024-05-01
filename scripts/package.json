@@ -4,9 +4,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Cass Fridkin <cass@swag.lgbt>",
+  "license": "PPL",
   "devDependencies": {
     "@types/github-script": "github:actions/github-script"
   }

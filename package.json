@@ -1,8 +1,16 @@
 {
   "name": "swag-lgbt",
   "private": true,
-  "workspaces": [
-    "scripts",
-    "apps/auth"
-  ]
+  "devDependencies": {
+    "@eslint/js": "^9.1.1",
+    "@types/eslint": "^8.56.10",
+    "eslint": "^8.56.0",
+    "globals": "^15.1.0",
+    "prettier": "^3.2.5",
+    "typescript-eslint": "^7.8.0"
+  },
+  "volta": {
+    "node": "20.12.2",
+    "pnpm": "9.0.6"
+  }
 }

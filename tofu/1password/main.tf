@@ -24,3 +24,8 @@ data "onepassword_item" "cloudflare_api_token" {
   vault = data.onepassword_vault.swag_lgbt.uuid
   title = "Tofu - Cloudflare API Token"
 }
+
+data "onepassword_item" "onepassword_service_account_token" {
+  vault = data.onepassword_vault.swag_lgbt.uuid
+  title = "1Password Service Account Token (Password)"
+}
