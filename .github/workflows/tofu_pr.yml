@@ -1,0 +1,65 @@
+name: Tofu Pull Request
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, synchronize]
+    paths:
+      - "**/**.tf"
+      - "terraform.lock.hcl"
+jobs:
+  tofu:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - name: OpenTofu fmt
+        id: fmt
+        run: tofu fmt -check -recursive
+        continue-on-error: true
+
+      - name: OpenTofu Init
+        id: init
+        run: tofu init
+
+      - name: OpenTofu Validate
+        id: validate
+        run: tofu validate -no-color
+
+      - uses: 1password/install-cli-action@v1
+
+      - name: OpenTofu Plan
+        env:
+          # Service token to get the 1password CLI authenticated
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
+          # Environment variables for tofu
+          CF_ACCOUNT_ID: "op://swagLGBT/Tofu - Cloudflare API Token/Account ID"
+          AWS_ACCESS_KEY_ID: "op://swagLGBT/Tofu - Cloudflare API Token/R2 Access Key ID"
+          AWS_SECRET_ACCESS_KEY: "op://swagLGBT/Tofu - Cloudflare API Token/R2 Secret Access Key"
+          AWS_ENDPOINT_URL_S3: "op://swagLGBT/Tofu - Cloudflare API Token/R2 Endpoint"
+
+          # Argument(s) for tofu
+          TF_VAR_onepassword_service_account_token: "op://swagLGBT/1password Service Account Auth Token/credential"
+
+        id: plan
+        run: op run -- tofu plan -no-color
+        continue-on-error: true
+
+      - uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          FMT_OUTCOME: ${{ steps.fmt.outcome }}
+          INIT_OUTCOME: ${{ steps.init.outcome }}
+          VALIDATE_OUTCOME: ${{ steps.validate.outcome }}
+          PLAN_OUTCOME: ${{ steps.plan.outcome }}
+          VALIDATE_STDOUT: ${{ steps.validate.outputs.stdout }}
+          PLAN_STDOUT: "tofu\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { makePrComment } = await import('${{ github.workspace }}/scripts/tofu-pr-comment.mjs');
+
+            await makePrComment();

@@ -1,0 +1,8 @@
+{
+  "name": "swag-lgbt",
+  "private": true,
+  "workspaces": [
+    "scripts",
+    "apps/auth"
+  ]
+}

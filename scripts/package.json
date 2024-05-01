@@ -1,0 +1,13 @@
+{
+  "name": "@swaglgbt/swaglgbt-scripts",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/github-script": "github:actions/github-script"
+  }
+}

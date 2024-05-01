@@ -8,8 +8,7 @@ TF_VAR_onepassword_service_account_token="$(op read "$OP_AUTH_TOKEN")"
 export TF_VAR_onepassword_service_account_token
 
 # Tell tofu how to talk to cloudflare r2
-CF_ACCOUNT_ID="op://swagLGBT/Tofu - Cloudflare API Token/Account ID"
-AWS_ENDPOINT_URL_S3="https://$(op read "$CF_ACCOUNT_ID").r2.cloudflarestorage.com"
+AWS_ENDPOINT_URL_S3="$(op read "op://swagLGBT/Tofu - Cloudflare API Token/R2 Endpoint")"
 AWS_ACCESS_KEY_ID="$(op read "op://swagLGBT/Tofu - Cloudflare API Token/R2 Access Key ID")"
 AWS_SECRET_ACCESS_KEY="$(op read "op://swagLGBT/Tofu - Cloudflare API Token/R2 Secret Access Key")"
 
