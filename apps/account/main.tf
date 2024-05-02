@@ -19,7 +19,7 @@ resource "cloudflare_pages_project" "auth" {
 
   build_config {
     build_command   = "pnpm pages:build"
-    destination_dir = "dist"
+    destination_dir = ".vercel/output/static"
     root_dir        = local.root_dir
     build_caching   = true
   }
