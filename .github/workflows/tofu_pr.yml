@@ -52,4 +52,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { makePrComment } = await import('${{ github.workspace }}/scripts/tofu-pr-comment.mjs');
-            await makePrComment();
+            await makePrComment({ github, context, core, glob, io, exec, require });
