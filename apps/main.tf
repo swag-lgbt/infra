@@ -32,8 +32,13 @@ module "matrix" {
   }
 }
 
-module "auth" {
-  source = "./auth"
+moved {
+  from = module.auth
+  to   = module.account
+}
+
+module "account" {
+  source = "./account"
 
   cloudflare = {
     account_id   = var.cloudflare.account_id
@@ -41,5 +46,5 @@ module "auth" {
     zone_id      = var.cloudflare.zone_id
   }
 
-  subdomain = "auth"
+  subdomain = "account"
 }

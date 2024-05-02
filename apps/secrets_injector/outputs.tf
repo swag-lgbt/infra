@@ -1,9 +1,7 @@
 output "secret_key_ref" {
   value = {
-    secret_key_ref = {
-      name = local.kubernetes_secret_name
-      key  = local.kubernetes_secret_key
-    }
+    name = local.kubernetes_secret_name
+    key  = local.kubernetes_secret_key
   }
 }
 
