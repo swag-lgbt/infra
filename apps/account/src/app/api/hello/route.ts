@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-// @ts-expect-error
+// @ts-ignore
 import { getRequestContext } from "@cloudflare/next-on-pages";
 
 export const runtime = "edge";
