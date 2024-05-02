@@ -7,6 +7,22 @@ terraform {
   }
 }
 
+module "passport" {
+  source = "./passport"
+
+  cloudflare = {
+    account_id   = var.cloudflare.account_id
+    project_name = "swag-lgbt-passport"
+    zone_id      = var.cloudflare.zone_id
+  }
+
+  passport = { subdomain = "account" }
+
+  onepassword = { vault_uuid = var.onepassword.vault_uuid }
+}
+
+/*
+
 module "secrets_injector" {
   source = "./secrets_injector"
 
@@ -31,20 +47,4 @@ module "matrix" {
     connection_pool_size = 4
   }
 }
-
-moved {
-  from = module.auth
-  to   = module.account
-}
-
-module "account" {
-  source = "./account"
-
-  cloudflare = {
-    account_id   = var.cloudflare.account_id
-    project_name = "swag-lgbt-accounts"
-    zone_id      = var.cloudflare.zone_id
-  }
-
-  subdomain = "account"
-}
+*/
