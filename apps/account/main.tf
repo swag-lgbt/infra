@@ -18,7 +18,7 @@ resource "cloudflare_pages_project" "auth" {
   production_branch = "main"
 
   build_config {
-    build_command   = "pnpm build"
+    build_command   = "pnpm pages:build"
     destination_dir = "dist"
     root_dir        = local.root_dir
     build_caching   = true

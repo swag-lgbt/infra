@@ -42,7 +42,7 @@ module "account" {
 
   cloudflare = {
     account_id   = var.cloudflare.account_id
-    project_name = "swag-lgbt-auth"
+    project_name = "swag-lgbt-accounts"
     zone_id      = var.cloudflare.zone_id
   }
 
