@@ -1,5 +1,5 @@
 {
-  "name": "swag-lgbt",
+  "name": "swaglgbt",
   "private": true,
   "description": "Monorepo for the swagLGBT project",
   "authors": "Cass Fridkin <cass@swag.lgbt>",
@@ -13,7 +13,7 @@
     "@types/eslint": "^8.56.10",
     "@types/eslint__eslintrc": "^2.1.1",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.12.9",
     "eslint": "^8.57.0",
     "eslint-plugin-qwik": "^1.5.3",
     "typescript": "^5.4.5",

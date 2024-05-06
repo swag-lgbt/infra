@@ -26,7 +26,7 @@ export const makePrComment = async (steps, { github, context }) => {
   <details><summary>Validation Output</summary>
 
   \`\`\`\n
-  ${steps.validate.outputs.stdout}
+  ${steps.validate.stdout}
   \`\`\`
 
   </details>
