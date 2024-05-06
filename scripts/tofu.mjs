@@ -2,7 +2,7 @@
  * Get the latest
  * @param {import("github-script").AsyncFunctionArguments} ctx
  */
-export const getLatestWorkflowRun = async ({ github, context, core }) => {
+export const getLatestWorkflowRunId = async ({ github, context, core }) => {
   const {
     data: {
       workflow_runs: [latestWorkflowRun],
@@ -15,7 +15,7 @@ export const getLatestWorkflowRun = async ({ github, context, core }) => {
     branch: process.env.GITHUB_HEAD_REF,
   });
 
-  return latestWorkflowRun
+  return latestWorkflowRun.id.toString(10)
 };
 
 /**

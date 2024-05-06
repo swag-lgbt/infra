@@ -128,12 +128,12 @@ jobs:
 
       - name: Find Latest OpenTofu Plan
         uses: actions/github-script@v7
-        id: get-latest-workflow-run
+        id: get-latest-workflow-run-id
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { getLatestWorkflowRun } = await import('${{ github.workspace }}/scripts/tofu.mjs');
-            await getLatestWorkflowRun({ github, context, core, glob, io, exec, require });
+            const { getLatestWorkflowRunId } = await import('${{ github.workspace }}/scripts/tofu.mjs');
+            await getLatestWorkflowRunId({ github, context, core, glob, io, exec, require });
       - name: Download OpenTofu Plan
         uses: actions/download-artifact@v4
         id: download
@@ -142,6 +142,6 @@ jobs:
           path: ${{ github.workspace }}/tofu-plan
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
-          run-id: ${{ fromJson(steps.get-latest-workflow-run.outputs.result).id }}
+          run-id: steps.get-latest-workflow-run-id.outputs.result
       - name: OpenTofu Apply
         run: just tofu apply -no-color ${{ steps.download.outputs.download-path }}
