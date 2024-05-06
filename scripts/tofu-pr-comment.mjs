@@ -1,34 +1,10 @@
-const getStepInfo = () => {
-  return {
-    fmt: { outcome: process.env.FMT_OUTCOME },
-    init: { outcome: process.env.INIT_OUTCOME },
-    validate: {
-      outcome: process.env.VALIDATE_OUTCOME,
-      outputs: { stdout: process.env.VALIDATE_STDOUT },
-    },
-    plan: {
-      outcome: process.env.PLAN_OUTCOME,
-      outputs: { stdout: process.env.PLAN_STDOUT },
-    },
-  };
-};
-
 /**
  * Create or edit bot comments on Tofu PR's
  *
- * @param {import('@types/github-script').AsyncFunctionArguments} AsyncFunctionArguments
+ * @param {{ fmt: { outcome: string; }; init: { outcome: string; }; validate: { outcome: string; stdout: string; }; plan: { outcome: string; stdout: string; }}} steps
+ * @param {import('@types/github-script').AsyncFunctionArguments} ctx
  */
-export const makePrComment = async ({
-  github,
-  context,
-  core,
-  glob,
-  io,
-  exec,
-  require,
-}) => {
-  const steps = getStepInfo();
-
+export const makePrComment = async (steps, { github, context }) => {
   // 1. Retrieve existing bot comments for the PR
   const { data: comments } = await github.rest.issues.listComments({
     owner: context.repo.owner,
@@ -60,7 +36,7 @@ export const makePrComment = async ({
   <details><summary>Show Plan</summary>
 
   \`\`\`\n
-  ${process.env.PLAN}
+  ${steps.plan.stdout}
   \`\`\`
 
   </details>`;
