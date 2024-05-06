@@ -115,9 +115,9 @@ module "apps" {
     vault_uuid            = module.data.onepassword.vault_uuid
   }
 
-  postgres = {
-    cluster_id = module.infra.postgres.id
-  }
+  # postgres = {
+  #   cluster_id = module.infra.postgres.id
+  # }
 
   cloudflare = {
     account_id = module.data.cloudflare.account_id

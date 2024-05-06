@@ -7,11 +7,11 @@ variable "onepassword" {
   sensitive = true
 }
 
-variable "postgres" {
-  type = object({
-    cluster_id = string
-  })
-}
+# variable "postgres" {
+#   type = object({
+#     cluster_id = string
+#   })
+# }
 
 variable "cloudflare" {
   type = object({

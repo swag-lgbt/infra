@@ -65,7 +65,7 @@ jobs:
 
       - name: TFLint
         id: lint
-        run: just lint-tofu
+        run: just tflint
 
       - name: OpenTofu Plan
         id: plan
