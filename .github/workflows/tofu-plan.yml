@@ -54,6 +54,11 @@ jobs:
         id: init
         run: just tofu init -no-color
 
+      - name: TFLint Init
+        run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: OpenTofu Validate
         id: validate
         run: just tofu validate -no-color
