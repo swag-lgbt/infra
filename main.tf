@@ -59,6 +59,8 @@ provider "helm" {
   }
 }
 
+# MODULES
+
 # Extra tofu data that isn't tied to a particular project
 module "data" {
   source = "./tofu"
