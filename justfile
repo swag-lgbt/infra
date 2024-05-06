@@ -38,5 +38,6 @@ install-deps:
 
 lint: lint-tofu
 
+alias tflint := lint-tofu
 lint-tofu:
   tflint --recursive --disable-rule=terraform_required_version

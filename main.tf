@@ -55,8 +55,7 @@ provider "helm" {
   }
 }
 
-# The only credential passed in to tofu is a 1password service account token.
-# Every other credential is stored in 1password and accessed via that token.
+# Extra tofu data that isn't tied to a particular project
 module "data" {
   source = "./tofu"
 }
@@ -116,9 +115,9 @@ module "apps" {
     vault_uuid            = module.data.onepassword.vault_uuid
   }
 
-  postgres = {
-    cluster_id = module.infra.postgres.id
-  }
+  # postgres = {
+  #   cluster_id = module.infra.postgres.id
+  # }
 
   cloudflare = {
     account_id = module.data.cloudflare.account_id

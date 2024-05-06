@@ -1,34 +1,16 @@
-const getStepInfo = () => {
-  return {
-    fmt: { outcome: process.env.FMT_OUTCOME },
-    init: { outcome: process.env.INIT_OUTCOME },
-    validate: {
-      outcome: process.env.VALIDATE_OUTCOME,
-      outputs: { stdout: process.env.VALIDATE_STDOUT },
-    },
-    plan: {
-      outcome: process.env.PLAN_OUTCOME,
-      outputs: { stdout: process.env.PLAN_STDOUT },
-    },
-  };
-};
-
 /**
  * Create or edit bot comments on Tofu PR's
  *
- * @param {import('@types/github-script').AsyncFunctionArguments} AsyncFunctionArguments
+ * @param {{ 
+ *  fmt: { outcome: string; }; 
+ *  init: { outcome: string; }; 
+ *  lint: { outcome: string; };
+ *  validate: { outcome: string; stdout: string; }; 
+ *  plan: { outcome: string; stdout: string; }
+ * }} steps
+ * @param {import("github-script").AsyncFunctionArguments} ctx
  */
-export const makePrComment = async ({
-  github,
-  context,
-  core,
-  glob,
-  io,
-  exec,
-  require,
-}) => {
-  const steps = getStepInfo();
-
+export const makePrComment = async (steps, { github, context }) => {
   // 1. Retrieve existing bot comments for the PR
   const { data: comments } = await github.rest.issues.listComments({
     owner: context.repo.owner,
@@ -38,19 +20,20 @@ export const makePrComment = async ({
 
   const botComment = comments.find((comment) => {
     return (
-      comment.user.type === "Bot" &&
-      comment.body.includes("OpenTofu Format and Style")
+      comment.user?.type === "Bot" &&
+      comment.body?.includes("OpenTofu Format and Style")
     );
   });
 
   // 2. Prepare format of the comment
   const output = `#### OpenTofu Format and Style 🖌\`${steps.fmt.outcome}\`
   #### OpenTofu Initialization ⚙️\`${steps.init.outcome}\`
+  #### TFLint ☑️\`${steps.lint.outcome}\`
   #### OpenTofu Validation 🤖\`${steps.validate.outcome}\`
   <details><summary>Validation Output</summary>
 
   \`\`\`\n
-  ${steps.validate.outputs.stdout}
+  ${steps.validate.stdout}
   \`\`\`
 
   </details>
@@ -60,7 +43,7 @@ export const makePrComment = async ({
   <details><summary>Show Plan</summary>
 
   \`\`\`\n
-  ${process.env.PLAN}
+  ${steps.plan.stdout}
   \`\`\`
 
   </details>`;
