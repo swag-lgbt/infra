@@ -1,0 +1,57 @@
+name: Apply OpenTofu Changes
+
+on:
+  pull_request:
+    branches:
+      - "main"
+    types:
+      - closed
+    paths:
+      - "**/**.tf"
+      - "**.hcl"
+jobs:
+  tofu-apply:
+    if: github.event.pull_request.merged == true
+    name: Apply OpenTofu Changes
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    env:
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Use OpenTofu Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.terraform/providers
+          key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+      - name: Setup just
+        uses: taiki-e/install-action@v2
+        with:
+          tool: just
+      - name: Setup 1Password CLI
+        uses: 1password/install-cli-action@v1
+
+      - name: Find Latest OpenTofu Plan
+        uses: actions/github-script@v7
+        id: get-latest-workflow-run
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { getLatestWorkflowRun } = await import('${{ github.workspace }}/scripts/tofu.mjs');
+            await getLatestWorkflowRun({ github, context, core, glob, io, exec, require });
+      - name: Download OpenTofu Plan
+        uses: actions/download-artifact@v4
+        id: download
+        with:
+          name: tofu-plan
+          path: ${{ github.workspace }}/tofu-plan
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ fromJson(steps.get-latest-workflow-run.outputs.result).id }}
+      - name: OpenTofu Apply
+        run: just tofu apply -no-color ${{ steps.download.outputs.download-path }}

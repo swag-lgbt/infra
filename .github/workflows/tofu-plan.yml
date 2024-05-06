@@ -18,71 +18,62 @@ jobs:
       pull-requests: write
     env:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-      PLAN_OUTFILE: "tofu-plan"
+      PLAN_OUTFILE: "${{ github.workspace }}/tofu-plan-${{ github.head_ref }}-${{ github.run_id }}"
     steps:
-      # Checkout repo
-      - uses: actions/checkout@v4
-        name: Checkout Repository
-
-      # Cache plugins/providers
-      - uses: actions/cache@v4
-        name: Use TFLint Cache
+      # Setup repo & cache
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Use TFLint Cache
+        uses: actions/cache@v4
         with:
           path: ~/.tflint.d/plugins
           key: cache-tflint-${{ hashFiles('.tflint.hcl') }}
-      - uses: actions/cache@v4
-        name: Use OpenTofu Cache
+      - name: Use OpenTofu Cache
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.terraform/providers
           key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}
 
       # Install required tools
-      - uses: opentofu/setup-opentofu@v1
-        name: Setup OpenTofu
-      - uses: terraform-linters/setup-tflint@v4
-        name: Setup TFLint
-      - uses: taiki-e/install-action@v2
-        name: Setup just
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+      - name: Setup just
+        uses: taiki-e/install-action@v2
         with:
           tool: just
-      - uses: 1password/install-cli-action@v1
-        name: Setup 1Passowrd CLI
+      - name: Setup 1Password CLI
+        uses: 1password/install-cli-action@v1
 
       # Run CI steps
       - name: OpenTofu Format
         id: fmt
         run: just tofu fmt -check -recursive -no-color
-        continue-on-error: true
-
       - name: OpenTofu Init
         id: init
         run: just tofu init -no-color
-
       - name: TFLint Init
         run: tflint --init
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: OpenTofu Validate
         id: validate
         run: just tofu validate -no-color
-
       - name: TFLint
         id: lint
         run: just tflint
-
       - name: OpenTofu Plan
         id: plan
         run: just tofu plan -no-color -out=${{ env.PLAN_OUTFILE }}
-        continue-on-error: true
 
       # Leave comment on PR
-      - uses: actions/github-script@v7
-        name: Leave Bot Comment on Pull Request
+      - name: Leave Bot Comment on Pull Request
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { makePrComment } = await import('${{ github.workspace }}/scripts/tofu-pr-comment.mjs');
+            const { makePrComment } = await import('${{ github.workspace }}/scripts/tofu.mjs');
             await makePrComment({
               fmt:      { outcome: String.raw`${{ steps.fmt.outcome }}` },  
               init:     { outcome: String.raw`${{ steps.init.outcome }}` },
@@ -98,8 +89,8 @@ jobs:
             }, { github, context, core, glob, io, exec, require });
 
       # Upload plan for later application
-      - uses: actions/upload-artifact@v4
-        name: Persist Plan
+      - name: Persist Plan
+        uses: actions/upload-artifact@v4
         with:
           name: tofu-plan
           path: ${{ env.PLAN_OUTFILE }}

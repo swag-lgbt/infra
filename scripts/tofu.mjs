@@ -1,11 +1,31 @@
 /**
+ * Get the latest
+ * @param {import("github-script").AsyncFunctionArguments} ctx
+ */
+export const getLatestWorkflowRun = async ({ github, context, core }) => {
+  const {
+    data: {
+      workflow_runs: [latestWorkflowRun],
+    },
+  } = await github.rest.actions.listWorkflowRuns({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    workflow_id: "tofu-apply.yml",
+    per_page: 1,
+    branch: process.env.GITHUB_HEAD_REF,
+  });
+
+  return latestWorkflowRun
+};
+
+/**
  * Create or edit bot comments on Tofu PR's
  *
- * @param {{ 
- *  fmt: { outcome: string; }; 
- *  init: { outcome: string; }; 
+ * @param {{
+ *  fmt: { outcome: string; };
+ *  init: { outcome: string; };
  *  lint: { outcome: string; };
- *  validate: { outcome: string; stdout: string; }; 
+ *  validate: { outcome: string; stdout: string; };
  *  plan: { outcome: string; stdout: string; }
  * }} steps
  * @param {import("github-script").AsyncFunctionArguments} ctx
@@ -49,7 +69,7 @@ export const makePrComment = async (steps, { github, context }) => {
   </details>`;
 
   // 3. If we have a comment, update it, otherwise create a new one
-  if (botComment) {
+  if (botComment !== undefined) {
     github.rest.issues.updateComment({
       owner: context.repo.owner,
       repo: context.repo.repo,
