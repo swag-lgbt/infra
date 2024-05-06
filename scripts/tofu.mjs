@@ -10,7 +10,7 @@ export const getLatestWorkflowRun = async ({ github, context, core }) => {
   } = await github.rest.actions.listWorkflowRuns({
     owner: context.repo.owner,
     repo: context.repo.repo,
-    workflow_id: "tofu-apply.yml",
+    workflow_id: "tofu.yml",
     per_page: 1,
     branch: process.env.GITHUB_HEAD_REF,
   });
