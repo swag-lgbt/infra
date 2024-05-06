@@ -1,8 +1,14 @@
 /**
  * Create or edit bot comments on Tofu PR's
  *
- * @param {{ fmt: { outcome: string; }; init: { outcome: string; }; validate: { outcome: string; stdout: string; }; plan: { outcome: string; stdout: string; }}} steps
- * @param {import('@types/github-script').AsyncFunctionArguments} ctx
+ * @param {{ 
+ *  fmt: { outcome: string; }; 
+ *  init: { outcome: string; }; 
+ *  lint: { outcome: string; };
+ *  validate: { outcome: string; stdout: string; }; 
+ *  plan: { outcome: string; stdout: string; }
+ * }} steps
+ * @param {import("github-script").AsyncFunctionArguments} ctx
  */
 export const makePrComment = async (steps, { github, context }) => {
   // 1. Retrieve existing bot comments for the PR
@@ -14,14 +20,15 @@ export const makePrComment = async (steps, { github, context }) => {
 
   const botComment = comments.find((comment) => {
     return (
-      comment.user.type === "Bot" &&
-      comment.body.includes("OpenTofu Format and Style")
+      comment.user?.type === "Bot" &&
+      comment.body?.includes("OpenTofu Format and Style")
     );
   });
 
   // 2. Prepare format of the comment
   const output = `#### OpenTofu Format and Style 🖌\`${steps.fmt.outcome}\`
   #### OpenTofu Initialization ⚙️\`${steps.init.outcome}\`
+  #### TFLint ☑️\`${steps.lint.outcome}\`
   #### OpenTofu Validation 🤖\`${steps.validate.outcome}\`
   <details><summary>Validation Output</summary>
 
