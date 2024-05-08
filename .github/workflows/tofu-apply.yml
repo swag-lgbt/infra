@@ -1,4 +1,4 @@
-name: Apply OpenTofu Changes
+name: OpenTofu Merge
 
 on:
   pull_request:
