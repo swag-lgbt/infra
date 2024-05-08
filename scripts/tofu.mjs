@@ -1,3 +1,5 @@
+import path from "node:path";
+
 /**
  *
  * @param {import("github-script").AsyncFunctionArguments["core"]} core \@actions/core lib
@@ -10,14 +12,16 @@ const errorReporterFactory = (core) => (message) => {
 };
 
 /**
- * Get the latest
+ * Download the last successful tofu plan associated with this pull request
  * @param {import("github-script").AsyncFunctionArguments} ctx
  */
-export const getLastSuccessfulTofuPlanRunId = async ({
+export const downloadLastSuccessfulTofuPlan = async ({
 	github,
 	context,
 	core,
+	require,
 }) => {
+	const Zip = require("adm-zip");
 	const error = errorReporterFactory(core);
 	const pullRequestNumber = context.payload.pull_request?.number;
 
@@ -122,7 +126,13 @@ export const getLastSuccessfulTofuPlanRunId = async ({
 		throw error(`No URL found for artifact ${artifact_id}`);
 	}
 
-	return run_id.toString(10);
+	const artifactResponse = await fetch(artifactUrl);
+	const zipper = new Zip(Buffer.from(await artifactResponse.arrayBuffer()));
+	const unzippedPath = path.resolve(__dirname, "tofu-plan");
+
+	zipper.extractAllTo(unzippedPath);
+
+	return unzippedPath;
 };
 
 /**

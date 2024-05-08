@@ -18,31 +18,27 @@ jobs:
     permissions:
       actions: read
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Use OpenTofu Cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/.terraform/providers
-          key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}
+      - uses: actions/checkout@v4
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: ${{ github.workspace }}/.terraform/providers
+      #     key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}
 
-      - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@v1
-      - name: Setup just
-        uses: taiki-e/install-action@v2
+      - uses: opentofu/setup-opentofu@v1
+      - uses: taiki-e/install-action@v2
         with:
           tool: just
-      - name: Setup 1Password CLI
-        uses: 1password/install-cli-action@v1
+      - uses: 1password/install-cli-action@v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - run: pnpm install --frozen-lockfile --prod
 
-      - name: Download Tofu Plan
-        uses: dawidd6/action-download-artifact@v3
+      - uses: actions/github-script@v7
         id: download-plan
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: tofu-plan.yml
-          workflow_conclusion: success
-          pr: ${{ github.event.pull_request.number }}
-          name: tofu-plan
-      - name: OpenTofu Apply
-        run: just tofu apply -no-color tofu-plan
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { downloadLastSuccessfulTofuPlan } = await import('${{ github.workspace }}/scripts/tofu.mjs');
+            return await downloadLastSuccessfulTofuPlan({ github, context, core, glob, io, exec, require });
+      - run: just tofu apply -no-color ${{ steps.download-plan.outputs.result }}

@@ -22,55 +22,41 @@ jobs:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
     steps:
       # Setup repo & cache
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Use TFLint Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.tflint.d/plugins
-          key: cache-tflint-${{ hashFiles('.tflint.hcl') }}-
-      - name: Use OpenTofu Cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/.terraform/providers
-          key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}-
+      - uses: actions/checkout@v4
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: ~/.tflint.d/plugins
+      #     key: cache-tflint-${{ hashFiles('.tflint.hcl') }}
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: ${{ github.workspace }}/.terraform/providers
+      #     key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}
 
       # Install required tools
-      - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@v1
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
-      - name: Setup just
-        uses: taiki-e/install-action@v2
+      - uses: opentofu/setup-opentofu@v1
+      - uses: terraform-linters/setup-tflint@v4
+      - uses: taiki-e/install-action@v2
         with:
           tool: just
-      - name: Setup 1Password CLI
-        uses: 1password/install-cli-action@v1
+      - uses: 1password/install-cli-action@v1
 
       # Run CI steps
-      - name: OpenTofu Format
-        id: fmt
+      - id: fmt
         run: just tofu fmt -check -recursive -no-color
-      - name: OpenTofu Init
-        id: init
-        run: just tofu init -no-color
-      - name: TFLint Init
-        run: tflint --init
+      - id: init
+        run: just tofu init -no-color # -lockfile=readonly
+      - run: tflint --init
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: OpenTofu Validate
-        id: validate
+      - id: validate
         run: just tofu validate -no-color
-      - name: TFLint
-        id: lint
+      - id: lint
         run: just tflint
-      - name: OpenTofu Plan
-        id: plan
+      - id: plan
         run: just tofu plan -no-color -out=${{ env.PLAN_OUTFILE }}
 
       # Leave comment on PR
-      - name: Leave Bot Comment on Pull Request
-        uses: actions/github-script@v7
+      - uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -90,8 +76,7 @@ jobs:
             }, { github, context, core, glob, io, exec, require });
 
       # Upload plan for later application
-      - name: Persist Plan
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: tofu-plan
           path: ${{ env.PLAN_OUTFILE }}

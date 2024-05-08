@@ -116,7 +116,7 @@ module "infra" {
   }
 }
 
-
+# The "apps" module contains all swagLGBT related applications, which all own their own tofu.
 module "apps" {
   source = "./apps"
 
