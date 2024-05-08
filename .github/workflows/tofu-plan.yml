@@ -44,7 +44,7 @@ jobs:
       - id: fmt
         run: just tofu fmt -check -recursive -no-color
       - id: init
-        run: just tofu init -no-color # -lockfile=readonly
+        run: just tofu init -no-color -lockfile=readonly
       - run: tflint --init
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
