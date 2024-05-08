@@ -1,4 +1,5 @@
 import path from "node:path";
+import Zip from "adm-zip";
 
 /**
  *
@@ -21,7 +22,6 @@ export const downloadLastSuccessfulTofuPlan = async ({
 	core,
 	require,
 }) => {
-	const Zip = require("adm-zip");
 	const error = errorReporterFactory(core);
 	const pullRequestNumber = context.payload.pull_request?.number;
 
