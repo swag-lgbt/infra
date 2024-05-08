@@ -13,7 +13,7 @@ data "onepassword_vault" "swag_lgbt" {
 }
 
 # TODO(BLOCKED): https://github.com/1Password/terraform-provider-onepassword/issues/52
-# all 1password items need to be "password"s...pain...
+# all 1password items need to be "password"s...
 
 data "onepassword_item" "digitalocean_access_token" {
   vault = data.onepassword_vault.swag_lgbt.uuid

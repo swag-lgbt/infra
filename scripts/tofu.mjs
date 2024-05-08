@@ -99,7 +99,7 @@ export const downloadLastSuccessfulTofuPlan = async ({
 	const {
 		data: { artifacts },
 	} = await github.rest.actions.listWorkflowRunArtifacts({
-		name: "tofu-plan.yml",
+		name: "tofu-plan",
 		run_id,
 		...context.repo,
 	});
