@@ -27,26 +27,24 @@ export const getLastSuccessfulTofuPlanRunId = async ({
 
 	/**
 	 * @type {{
-	 *  lastTenWorkflowRuns: {
-	 *    repository: {
-	 *      pullRequest: {
-	 *        statusCheckRollup: {
-	 *          contexts: {
-	 *            nodes: {
-	 *              name: string;
-	 *              conclusion: "FAILURE" | "SUCCESS" | "SKIPPED";
-	 *              startedAt: string;
-	 *              checkSuite: {
-	 *                workflowRun: {
-	 *                  runNumber: number;
-	 *                }
+	 * 	repository: {
+	 *  	pullRequest: {
+	 *    	statusCheckRollup: {
+	 *      	contexts: {
+	 *        	nodes: {
+	 *          	name: string;
+	 *            conclusion: "FAILURE" | "SUCCESS" | "SKIPPED";
+	 *            startedAt: string;
+	 *            checkSuite: {
+	 *            	workflowRun: {
+	 *              	runNumber: number;
 	 *              }
-	 *            }[]
-	 *          }
+	 *            }
+	 *          }[]
 	 *        }
-	 *      }
+	 *     	}
 	 *    }
-	 *  }
+	 * 	}
 	 * }}
 	 */
 	const response = await github.graphql(
@@ -80,8 +78,7 @@ export const getLastSuccessfulTofuPlanRunId = async ({
 	console.log(JSON.stringify(response));
 
 	const lastTenCheckruns =
-		response.lastTenWorkflowRuns.repository.pullRequest.statusCheckRollup
-			.contexts.nodes;
+		response.repository.pullRequest.statusCheckRollup.contexts.nodes;
 
 	const lastSuccessfulTofuPlanWorkflow = lastTenCheckruns
 		.filter(
