@@ -83,7 +83,7 @@ export const getLastSuccessfulTofuPlanRunId = async ({
 	const lastSuccessfulTofuPlanWorkflow = lastTenCheckruns
 		.filter(
 			({ name, conclusion }) =>
-				conclusion === "SUCCESS" && name === "Plan OpenTofu Changes",
+				conclusion === "SUCCESS" && name === "Validate & Plan OpenTofu Changes",
 		)
 		.reduce((a, b) => {
 			let aTimestamp = Date.parse(a.startedAt);

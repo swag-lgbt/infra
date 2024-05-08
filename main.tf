@@ -69,8 +69,7 @@ module "data" {
   source = "./tofu"
 }
 
-# Everything that sits below the application layer, e.g. VM's and databases,
-# lives in the ./infra module.
+# The "infra" module owns infrastructure that isn't tied to a particular project
 module "infra" {
   source = "./infra"
 
