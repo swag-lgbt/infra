@@ -23,14 +23,14 @@ jobs:
     steps:
       # Setup repo & cache
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: ~/.tflint.d/plugins
-          key: cache-tflint-${{ hashFiles('.tflint.hcl') }}-
-      - uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/.terraform/providers
-          key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}-
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: ~/.tflint.d/plugins
+      #     key: cache-tflint-${{ hashFiles('.tflint.hcl') }}
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: ${{ github.workspace }}/.terraform/providers
+      #     key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}
 
       # Install required tools
       - uses: opentofu/setup-opentofu@v1
