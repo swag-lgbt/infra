@@ -1,15 +1,4 @@
 /**
- *
- * @param {import("github-script").AsyncFunctionArguments["core"]} core \@actions/core lib
- * @returns {(message: string) => Error} error reporter
- */
-const errorReporterFactory = (core) => (message) => {
-	const error = new Error(message);
-	core.setFailed(error);
-	return error;
-};
-
-/**
  * Download the last successful tofu plan associated with this pull request
  * @param {import("github-script").AsyncFunctionArguments} ctx
  */
@@ -20,13 +9,13 @@ export const downloadLastSuccessfulTofuPlan = async ({
 	require,
 }) => {
 	const path = (await import("node:path")).default;
+	const process = (await import("node:process")).default;
 	const Zip = (await import("adm-zip")).default;
 
-	const error = errorReporterFactory(core);
 	const pullRequestNumber = context.payload.pull_request?.number;
 
 	if (typeof pullRequestNumber !== "number") {
-		throw error("Failed to determine PR number");
+		throw new Error("Failed to determine PR number");
 	}
 
 	/**
@@ -105,28 +94,25 @@ export const downloadLastSuccessfulTofuPlan = async ({
 	});
 
 	if (artifacts.length === 0) {
-		throw error(`No artifacts found for workflow ${run_id}`);
+		throw new Error(`No artifacts found for workflow ${run_id}`);
 	}
 
 	const tofuPlanArtifact = artifacts.find(({ name }) => name === "tofu-plan");
 	if (tofuPlanArtifact === undefined) {
-		throw error(`No artifact named "tofu-plan"`);
+		throw new Error(`No artifact named "tofu-plan"`);
 	}
 
 	const artifact_id = tofuPlanArtifact.id;
 
-	const artifactUrlResponse = await github.rest.actions.downloadArtifact({
+	const { url: artifactUrl } = await github.rest.actions.downloadArtifact({
 		artifact_id,
 		archive_format: "zip",
 		...context.repo,
 	});
-	const artifactUrl = artifactUrlResponse.headers.location;
 
-	if (artifactUrl === undefined) {
-		throw error(`No URL found for artifact ${artifact_id}`);
-	}
-
-	const artifactResponse = await fetch(artifactUrl);
+	const artifactResponse = await fetch(artifactUrl, {
+		headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` },
+	});
 	const zipper = new Zip(Buffer.from(await artifactResponse.arrayBuffer()));
 	const unzippedPath = path.resolve(__dirname, "tofu-plan");
 
