@@ -41,7 +41,7 @@ export const downloadLastSuccessfulTofuPlan = async ({
 	 *            startedAt: string;
 	 *            checkSuite: {
 	 *            	workflowRun: {
-	 *              	runNumber: number;
+	 *              	databaseId: number;
 	 *              }
 	 *            }
 	 *          }[]
@@ -65,7 +65,7 @@ export const downloadLastSuccessfulTofuPlan = async ({
               startedAt
               checkSuite{
                 workflowRun {
-                  runNumber
+                  databaseId
                 }
               }
             }
@@ -94,7 +94,7 @@ export const downloadLastSuccessfulTofuPlan = async ({
 		});
 
 	const run_id =
-		lastSuccessfulTofuPlanWorkflow.checkSuite.workflowRun.runNumber;
+		lastSuccessfulTofuPlanWorkflow.checkSuite.workflowRun.databaseId;
 
 	const {
 		data: { artifacts },
