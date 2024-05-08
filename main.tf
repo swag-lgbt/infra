@@ -64,7 +64,8 @@ provider "helm" {
 # In general, apps should own their own tofu. THose all live in /apps.
 # Other modules are for things that aren't explicitly owned by a single app.
 
-# The "data" module owns tofu-specific data that isn't tied to a particular project
+# The "data" module owns tofu-specific data that isn't tied to a particular project,
+# for example a Cloudflare Zone ID
 module "data" {
   source = "./tofu"
 }

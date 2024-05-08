@@ -47,7 +47,7 @@ jobs:
         uses: actions/download-artifact@v4
         id: download-plan
         with:
-          name: "tofu-plan"
+          name: tofu-plan
           path: ${{ github.workspace }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
