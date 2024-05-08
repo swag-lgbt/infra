@@ -36,6 +36,15 @@ install-deps:
   OP_SERVICE_ACCOUNT_TOKEN="$(op read "op://swagLGBT/1password Service Account Auth Token/credential")" \
   op run -- tofu {{ ARGS }}
 
+fmt: fmt-js fmt-tofu
+
+fmt-js:
+	pnpm prettier . --write
+
+fmt-tofu:
+	tofu fmt -recursive
+
+
 lint: lint-tofu
 
 alias tflint := lint-tofu

@@ -1,4 +1,9 @@
 {
-  "recommendations": ["dbaeumer.vscode-eslint", "unifiedjs.vscode-mdx"],
-  "unwantedRecommendations": []
+	"recommendations": [
+		"dbaeumer.vscode-eslint",
+		"unifiedjs.vscode-mdx",
+		"graphql.vscode-graphql-syntax",
+		"editorconfig.editorconfig"
+	],
+	"unwantedRecommendations": []
 }
