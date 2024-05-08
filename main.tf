@@ -33,8 +33,8 @@ terraform {
 }
 
 # PROVIDER CONFIGURATION
-#
-# Note: 1password is configured via the OP_SERVICE_ACCOUNT_TOKEN environment variable
+# 
+# 1password is configured via the OP_SERVICE_ACCOUNT_TOKEN environment variable
 
 provider "digitalocean" {
   token = module.data.onepassword.credentials.digitalocean_access_token

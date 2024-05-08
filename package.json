@@ -3,6 +3,7 @@
 	"private": true,
 	"description": "Monorepo for the swagLGBT project",
 	"authors": "Cass Fridkin <cass@swag.lgbt>",
+	"packageManager": "pnpm@9.1.0",
 	"volta": {
 		"node": "20.12.2",
 		"pnpm": "9.1.0"
