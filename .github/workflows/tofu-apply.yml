@@ -32,6 +32,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
+      - uses: pnpm/action-setup@v4.0.0
       - run: pnpm install --frozen-lockfile --prod
 
       - uses: actions/github-script@v7
