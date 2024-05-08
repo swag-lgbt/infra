@@ -60,6 +60,9 @@ provider "helm" {
 }
 
 # MODULES
+#
+# In general, apps should own their own tofu. THose all live in /apps.
+# Other modules are for things that aren't explicitly owned by a single app.
 
 # Tofu-specific data that isn't tied to a particular project
 module "data" {
