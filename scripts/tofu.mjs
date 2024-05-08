@@ -1,5 +1,3 @@
-import path from "node:path";
-
 /**
  *
  * @param {import("github-script").AsyncFunctionArguments["core"]} core \@actions/core lib
@@ -21,7 +19,9 @@ export const downloadLastSuccessfulTofuPlan = async ({
 	core,
 	require,
 }) => {
-	const Zip = require("adm-zip");
+	const path = (await import("node:path")).default;
+	const Zip = (await import("adm-zip")).default;
+
 	const error = errorReporterFactory(core);
 	const pullRequestNumber = context.payload.pull_request?.number;
 
