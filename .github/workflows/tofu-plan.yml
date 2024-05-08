@@ -1,4 +1,4 @@
-name: Plan OpenTofu Changes
+name: OpenTofu Pull Request
 
 on:
   pull_request:
@@ -12,8 +12,7 @@ on:
       - "**.hcl"
 
 jobs:
-  tofu-plan:
-    if: github.event.pull_request.state == 'open'
+  tofu:
     name: "Validate & Plan OpenTofu Changes"
     runs-on: ubuntu-latest
     permissions:
@@ -29,12 +28,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.tflint.d/plugins
-          key: cache-tflint-${{ hashFiles('.tflint.hcl') }}
+          key: cache-tflint-${{ hashFiles('.tflint.hcl') }}-
       - name: Use OpenTofu Cache
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.terraform/providers
-          key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}
+          key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}-
 
       # Install required tools
       - name: Setup OpenTofu
