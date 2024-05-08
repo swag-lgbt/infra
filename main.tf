@@ -70,7 +70,8 @@ module "data" {
   source = "./tofu"
 }
 
-# The "infra" module owns infrastructure that isn't tied to a particular project
+# The "infra" module owns infrastructure that isn't tied to a particular project,
+# for example a kubernetes cluster
 module "infra" {
   source = "./infra"
 

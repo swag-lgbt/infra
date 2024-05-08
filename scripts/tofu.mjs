@@ -75,8 +75,6 @@ export const getLastSuccessfulTofuPlanRunId = async ({
 		{ pullRequestNumber },
 	);
 
-	console.log(JSON.stringify(response));
-
 	const lastTenCheckruns =
 		response.repository.pullRequest.statusCheckRollup.contexts.nodes;
 
@@ -91,11 +89,38 @@ export const getLastSuccessfulTofuPlanRunId = async ({
 			return aTimestamp > bTimestamp ? a : b;
 		});
 
+	const run_id =
+		lastSuccessfulTofuPlanWorkflow.checkSuite.workflowRun.runNumber;
+
 	const {
-		checkSuite: {
-			workflowRun: { runNumber: run_id },
-		},
-	} = lastSuccessfulTofuPlanWorkflow;
+		data: { artifacts },
+	} = await github.rest.actions.listWorkflowRunArtifacts({
+		name: "tofu-plan.yml",
+		run_id,
+		...context.repo,
+	});
+
+	if (artifacts.length === 0) {
+		throw error(`No artifacts found for workflow ${run_id}`);
+	}
+
+	const tofuPlanArtifact = artifacts.find(({ name }) => name === "tofu-plan");
+	if (tofuPlanArtifact === undefined) {
+		throw error(`No artifact named "tofu-plan"`);
+	}
+
+	const artifact_id = tofuPlanArtifact.id;
+
+	const artifactUrlResponse = await github.rest.actions.downloadArtifact({
+		artifact_id,
+		archive_format: "zip",
+		...context.repo,
+	});
+	const artifactUrl = artifactUrlResponse.headers.location;
+
+	if (artifactUrl === undefined) {
+		throw error(`No URL found for artifact ${artifact_id}`);
+	}
 
 	return run_id.toString(10);
 };
