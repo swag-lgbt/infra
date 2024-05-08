@@ -77,6 +77,8 @@ export const getLastSuccessfulTofuPlanRunId = async ({
 		{ pullRequestNumber },
 	);
 
+	console.log(JSON.stringify(response));
+
 	const lastTenCheckruns =
 		response.lastTenWorkflowRuns.repository.pullRequest.statusCheckRollup
 			.contexts.nodes;
