@@ -60,7 +60,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { makePrComment } = await import('${{ github.workspace }}/scripts/tofu.mjs');
+            const { makePrComment } = await import('${{ github.workspace }}/scripts/tofu-pr-comment.mjs');
             await makePrComment({
               fmt:      { outcome: String.raw`${{ steps.fmt.outcome }}` },  
               init:     { outcome: String.raw`${{ steps.init.outcome }}` },

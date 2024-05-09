@@ -40,6 +40,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { downloadLastSuccessfulTofuPlan } = await import('${{ github.workspace }}/scripts/tofu.mjs');
-            return await downloadLastSuccessfulTofuPlan({ github, context, core, glob, io, exec, require });
+            const { downloadTofuPlan } = await import('${{ github.workspace }}/scripts/tofu-download-plan.mjs');
+            return await downloadTofuPlan({ github, context, core, glob, io, exec, require });
       - run: just tofu apply -no-color ${{ steps.download-plan.outputs.result }}
