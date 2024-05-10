@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-# TODO: get this from tofu somehow....
+# TODO: get this from tofu somehow...
 locals {
   cloudflare_account_id = "8046ced7e2c70129d1732280998af108"
 }
