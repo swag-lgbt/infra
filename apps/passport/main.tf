@@ -61,7 +61,7 @@ resource "cloudflare_record" "passport" {
 resource "cloudflare_record" "stytch" {
   zone_id = var.cloudflare.zone_id
   name    = "api.stytch"
-  value   = "${data.onepassword_item.stytch_api_subdomain.username}.customers.stytch.com"
+  value   = data.onepassword_item.stytch_api_subdomain.username
   type    = "CNAME"
   proxied = false
   ttl     = 3600
