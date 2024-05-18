@@ -35,6 +35,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { downloadTofuPlan } = await import('${{ github.workspace }}/scripts/tofu-download-plan.mjs');
+            const { downloadTofuPlan } = await import('${{ github.workspace }}/scripts/actions/tofu-apply.mjs');
             return await downloadTofuPlan({ github, context, core, glob, io, exec, require });
       - run: just tofu apply -no-color ${{ steps.download-plan.outputs.result }}

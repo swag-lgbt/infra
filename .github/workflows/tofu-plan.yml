@@ -60,8 +60,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { makePrComment } = await import('${{ github.workspace }}/scripts/tofu-pr-comment.mjs');
-            await makePrComment({
+            const { makePrComment } = await import('${{ github.workspace }}/scripts/actions/tofu-plan.mjs');
+            await makePrComment({ github, context, core, glob, io, exec, require, steps: {
               fmt:      { outcome: String.raw`${{ steps.fmt.outcome }}` },  
               init:     { outcome: String.raw`${{ steps.init.outcome }}` },
               validate: {
@@ -73,7 +73,7 @@ jobs:
                 outcome:  String.raw`${{ steps.plan.outcome }}`,
                 stdout:   String.raw`${{ steps.plan.outputs.stdout }}`
               }
-            }, { github, context, core, glob, io, exec, require });
+            }});
 
       # Upload plan for later application
       - uses: actions/upload-artifact@v4
