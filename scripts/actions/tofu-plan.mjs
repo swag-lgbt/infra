@@ -1,16 +1,17 @@
 /**
  * Create or edit bot comments on Tofu PR's
  *
- * @param {{
- *  fmt: { outcome: string; };
- *  init: { outcome: string; };
- *  lint: { outcome: string; };
- *  validate: { outcome: string; stdout: string; };
- *  plan: { outcome: string; stdout: string; }
- * }} steps
- * @param {import("github-script").AsyncFunctionArguments} ctx
+ * @param {import("github-script").AsyncFunctionArguments & {
+ * 	steps: {
+ *  	fmt: { outcome: string; };
+ *  	init: { outcome: string; };
+ *  	lint: { outcome: string; };
+ *  	validate: { outcome: string; stdout: string; };
+ *  	plan: { outcome: string; stdout: string; }
+ * 	}
+ * }} ctx
  */
-export const makePrComment = async (steps, { github, context }) => {
+export const makePrComment = async ({ steps, github, context }) => {
 	// 1. Retrieve existing bot comments for the PR
 	const { data: comments } = await github.rest.issues.listComments({
 		owner: context.repo.owner,
