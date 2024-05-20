@@ -19,8 +19,6 @@ jobs:
       pull-requests: write
     env:
       PLAN_OUTFILE: "${{ github.workspace }}/tofu-plan-${{ github.head_ref }}-${{ github.run_id }}"
-      PLAN_VIZ_FILE: "${{ github.workspace }}/tofu-plan-${{ github.head_ref }}-${{ github.run_id}}-viz.dot"
-      RELATIVE_KROKI_JAR_PATH: "kroki/kroki-standalone-server.jar"
     steps:
       # Setup repo & cache
       - uses: actions/checkout@v4
@@ -46,7 +44,7 @@ jobs:
         run: tofu fmt -check -recursive -no-color
       - name: Initialize OpenTofu
         id: init
-        run: just tofu init -no-color -lockfile=readonly
+        run: just tofu init -no-color
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
       - name: Initialize TFLint
