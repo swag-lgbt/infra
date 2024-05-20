@@ -22,15 +22,12 @@ export const makePrComment = async ({ steps, github, context }) => {
 	const botComment = comments.find((comment) => {
 		return (
 			comment.user?.type === "Bot" &&
-			comment.body?.includes("OpenTofu Format and Style")
+			comment.body?.includes("OpenTofu Validation 🤖")
 		);
 	});
 
 	// 2. Prepare format of the comment
-	const output = `#### OpenTofu Format and Style 🖌\`${steps.fmt.outcome}\`
-  #### OpenTofu Initialization ⚙️\`${steps.init.outcome}\`
-  #### TFLint ☑️\`${steps.lint.outcome}\`
-  #### OpenTofu Validation 🤖\`${steps.validate.outcome}\`
+	const output = `#### OpenTofu Validation 🤖\`${steps.validate.outcome}\`
   <details><summary>Validation Output</summary>
 
   \`\`\`\n

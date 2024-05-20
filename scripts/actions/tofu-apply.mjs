@@ -123,7 +123,7 @@ const getLastTenCheckruns = async ({ github, context }) => {
  */
 const getLastSuccessfulTofuPlanWorkflowRunId = (checkruns) => {
 	const DESIRED_CONCLUSION = "SUCCESS";
-	const CHECKRUN_NAME = "Validate & Plan OpenTofu Changes";
+	const CHECKRUN_NAME = "Validate OpenTofu Configuration & Plan Changes";
 
 	Logger.debug(
 		`Attempting to find checkrun with name "${CHECKRUN_NAME}" and conclusion "${DESIRED_CONCLUSION}`,

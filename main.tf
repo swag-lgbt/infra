@@ -40,7 +40,7 @@ provider "cloudflare" {
   api_token = module.data.onepassword.credentials.cloudflare_api_token
 }
 
-
+# TODO: move to vultr
 # provider "kubernetes" {
 #   host                   = module.infra.kubernetes.host
 #   token                  = module.infra.kubernetes.token
