@@ -12,8 +12,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       '@eslint/js':
-        specifier: ^9.2.0
-        version: 9.2.0
+        specifier: ^9.3.0
+        version: 9.3.0
       '@types/eslint':
         specifier: ^8.56.10
         version: 8.56.10
@@ -116,7 +116,7 @@ importers:
     devDependencies:
       '@types/github-script':
         specifier: github:actions/github-script
-        version: github-script@https://codeload.github.com/actions/github-script/tar.gz/60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        version: github-script@git+https://git@github.com:actions/github-script.git#60a0d83039c74a4aee543508d2ffcb1c3799cdea
       '@types/node':
         specifier: ^20.12.11
         version: 20.12.11
@@ -538,8 +538,8 @@ packages:
     resolution: {integrity: sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@eslint/js@9.2.0':
-    resolution: {integrity: sha512-ESiIudvhoYni+MdsI8oD7skpprZ89qKocwRM2KEvhhBJ9nl5MRh7BXU5GTod7Mdygq+AUl+QzId6iWJKR/wABA==}
+  '@eslint/js@9.3.0':
+    resolution: {integrity: sha512-niBqk8iwv96+yuTwjM6bWg8ovzAPF9qkICsGtcoa5/dmqcEMfdwNAX7+/OHcJHc7wj7XqPxH98oAHytFYlw6Sw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@fastify/busboy@2.1.1':
@@ -2128,8 +2128,8 @@ packages:
   git-hooks-list@3.1.0:
     resolution: {integrity: sha512-LF8VeHeR7v+wAbXqfgRlTSX/1BJR9Q1vEMR8JAz1cEg6GX07+zyj3sAdDvYjj/xnlIfVuGgj4qBei1K3hKH+PA==}
 
-  github-script@https://codeload.github.com/actions/github-script/tar.gz/60a0d83039c74a4aee543508d2ffcb1c3799cdea:
-    resolution: {tarball: https://codeload.github.com/actions/github-script/tar.gz/60a0d83039c74a4aee543508d2ffcb1c3799cdea}
+  github-script@git+https://git@github.com:actions/github-script.git#60a0d83039c74a4aee543508d2ffcb1c3799cdea:
+    resolution: {commit: 60a0d83039c74a4aee543508d2ffcb1c3799cdea, repo: git@github.com:actions/github-script.git, type: git}
     version: 7.0.1
     engines: {node: '>=20.0.0 <21.0.0'}
 
@@ -3983,7 +3983,7 @@ snapshots:
 
   '@eslint/js@8.57.0': {}
 
-  '@eslint/js@9.2.0': {}
+  '@eslint/js@9.3.0': {}
 
   '@fastify/busboy@2.1.1': {}
 
@@ -5814,7 +5814,7 @@ snapshots:
 
   git-hooks-list@3.1.0: {}
 
-  github-script@https://codeload.github.com/actions/github-script/tar.gz/60a0d83039c74a4aee543508d2ffcb1c3799cdea:
+  github-script@git+https://git@github.com:actions/github-script.git#60a0d83039c74a4aee543508d2ffcb1c3799cdea:
     dependencies:
       '@actions/core': 1.10.1
       '@actions/exec': 1.1.1
