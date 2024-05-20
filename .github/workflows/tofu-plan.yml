@@ -43,7 +43,7 @@ jobs:
 
       - name: Check HCL Formatting
         id: fmt
-        run: just tofu fmt -check -recursive -no-color
+        run: tofu fmt -check -recursive -no-color
       - name: Initialize OpenTofu
         id: init
         run: just tofu init -no-color -lockfile=readonly
