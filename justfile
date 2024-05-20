@@ -21,6 +21,9 @@ install-deps:
   brew install tflint
   tflint --init
 
+  # Install `tfupdate` to update terraform deps as necessary
+  brew install minamijoyo/tfupdate/tfupdate
+
   # Install `op`, the 1password CLI, to authorize our various secrets
   brew install 1password-cli
   op signin
@@ -48,5 +51,5 @@ fmt-tofu:
 lint: lint-tofu
 
 alias tflint := lint-tofu
-lint-tofu:
-  tflint --recursive --disable-rule=terraform_required_version
+lint-tofu *ARGS:
+  tflint --recursive --disable-rule=terraform_required_version {{ ARGS }}

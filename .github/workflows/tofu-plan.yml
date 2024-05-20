@@ -19,20 +19,19 @@ jobs:
       pull-requests: write
     env:
       PLAN_OUTFILE: "${{ github.workspace }}/tofu-plan-${{ github.head_ref }}-${{ github.run_id }}"
-      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
     steps:
       # Setup repo & cache
       - uses: actions/checkout@v4
-      # - uses: actions/cache@v4
-      #   with:
-      #     path: ~/.tflint.d/plugins
-      #     key: cache-tflint-${{ hashFiles('.tflint.hcl') }}
-      # - uses: actions/cache@v4
-      #   with:
-      #     path: ${{ github.workspace }}/.terraform/providers
-      #     key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.tflint.d/plugins
+          key: cache-tflint-${{ hashFiles('.tflint.hcl') }}
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.terraform/providers
+          key: cache-tofu-${{ hashFiles('.terraform.lock.hcl') }}
 
-      # Install required tools
+      # Setup required tools
       - uses: opentofu/setup-opentofu@v1
       - uses: terraform-linters/setup-tflint@v4
       - uses: taiki-e/install-action@v2
@@ -40,23 +39,37 @@ jobs:
           tool: just
       - uses: 1password/install-cli-action@v1
 
-      # Run CI steps
-      - id: fmt
-        run: just tofu fmt -check -recursive -no-color
-      - id: init
-        run: just tofu init -no-color # -lockfile=readonly
-      - run: tflint --init
+      - name: Check HCL Formatting
+        id: fmt
+        run: tofu fmt -check -recursive -no-color
+
+      - name: Initialize OpenTofu
+        id: init
+        run: just tofu init -no-color
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      - name: Initialize TFLint
+        run: tflint --init
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - id: validate
-        run: just tofu validate -no-color
-      - id: lint
-        run: just tflint
-      - id: plan
-        run: just tofu plan -no-color -out=${{ env.PLAN_OUTFILE }}
 
-      # Leave comment on PR
-      - uses: actions/github-script@v7
+      - name: Validate OpenTofu Configuration
+        id: validate
+        run: just tofu validate -no-color
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      - name: Lint HCL Files
+        id: lint
+        run: just tflint --no-color
+
+      - name: Plan OpenTofu Changes
+        id: plan
+        run: just tofu plan -no-color -out=${{ env.PLAN_OUTFILE }}
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
+      - name: Comment on Pull Request
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
