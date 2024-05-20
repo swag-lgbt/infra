@@ -42,6 +42,7 @@ jobs:
       - name: Check HCL Formatting
         id: fmt
         run: tofu fmt -check -recursive -no-color
+
       - name: Initialize OpenTofu
         id: init
         run: just tofu init -no-color
@@ -51,12 +52,16 @@ jobs:
         run: tflint --init
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Validate OpenTofu Configuration
         id: validate
         run: just tofu validate -no-color
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
       - name: Lint HCL Files
         id: lint
         run: just tflint --no-color
+
       - name: Plan OpenTofu Changes
         id: plan
         run: just tofu plan -no-color -out=${{ env.PLAN_OUTFILE }}
