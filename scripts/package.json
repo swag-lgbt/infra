@@ -9,7 +9,7 @@
 	"license": "PPL",
 	"devDependencies": {
 		"@types/github-script": "github:actions/github-script",
-		"@types/node": "^20.12.11",
+		"@types/node": "^20.12.12",
 		"vitest": "^1.6.0"
 	}
 }
