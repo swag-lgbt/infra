@@ -71,7 +71,7 @@ importers:
     devDependencies:
       '@cloudflare/next-on-pages':
         specifier: ^1.11.2
-        version: 1.11.2(@cloudflare/workers-types@4.20240512.0)(vercel@34.2.0)(wrangler@3.57.0(@cloudflare/workers-types@4.20240512.0))
+        version: 1.11.2(@cloudflare/workers-types@4.20240512.0)(vercel@34.2.2)(wrangler@3.57.0(@cloudflare/workers-types@4.20240512.0))
       '@cloudflare/workers-types':
         specifier: ^4.20240512.0
         version: 4.20240512.0
@@ -106,8 +106,8 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
       vercel:
-        specifier: ^34.2.0
-        version: 34.2.0
+        specifier: ^34.2.2
+        version: 34.2.2
       wrangler:
         specifier: ^3.57.0
         version: 3.57.0(@cloudflare/workers-types@4.20240512.0)
@@ -1040,8 +1040,8 @@ packages:
   '@vercel/hydrogen@1.0.2':
     resolution: {integrity: sha512-/Q2MKk1GfOuZAnkE9jQexjtUQqanbY65R+xtJWd9yKIgwcfRI1hxiNH3uXyVM5AvLoY+fxxULkSuxDtUKpkJpQ==}
 
-  '@vercel/next@4.2.11':
-    resolution: {integrity: sha512-jCMTa75CIkX8vfY4BiW6BajSLXXQRE1doNeX9nO+gzYtaKTfxB5FiVKNAocjDwP249WIR0o1vziHus5bX84jFg==}
+  '@vercel/next@4.2.13':
+    resolution: {integrity: sha512-DMOPezCeKb6r4hJ9WM4FO+7FGNwNgCF6RHoVZe5FmHI3C8mvzQqzPgausvXQq33l1YR5t81xDZpJRqprYEsIgg==}
 
   '@vercel/nft@0.27.0':
     resolution: {integrity: sha512-W5pValyhToK9hbgEUAM6sLRUIl1I++RsFnXKHXtND50P1+vZ+OYPCzq1OOz0Ok6ghK6aOwae8G/rEAXkLedC+w==}
@@ -2289,6 +2289,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.1:
     resolution: {integrity: sha512-8nWq2nLTAwd02jTqJExUYFSD/fKq6VH9Y/oG2accc/kdI0V98Bag8d5a4gi3XHz73rDWa2PvTtvcWYquKqSENA==}
@@ -3543,8 +3544,8 @@ packages:
     resolution: {integrity: sha512-OljLrQ9SQdOUqTaQxqL5dEfZWrXExyyWsozYlAWFawPVNuD83igl7uJD2RTkNMbniIYgt8l81eCJGIdQF7avLQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
-  vercel@34.2.0:
-    resolution: {integrity: sha512-OUMvETq+5Iq9L5m1v/E9SPUUfKnKnJjynv0ydeAqWnXoYAwgcaJCg+3HVOEk1VhjhgcGzSS1uGHvlcLmK6XRkA==}
+  vercel@34.2.2:
+    resolution: {integrity: sha512-8JGdsyJ7kxbmp74fqgD+lIP7/gPs51aYoISdckgvopKUsWUBkYe0HzoFvutW6L3ODHmSOoNVXaOmqUjOMtPMHQ==}
     engines: {node: '>= 16'}
     hasBin: true
 
@@ -3785,7 +3786,7 @@ snapshots:
     dependencies:
       mime: 3.0.0
 
-  '@cloudflare/next-on-pages@1.11.2(@cloudflare/workers-types@4.20240512.0)(vercel@34.2.0)(wrangler@3.57.0(@cloudflare/workers-types@4.20240512.0))':
+  '@cloudflare/next-on-pages@1.11.2(@cloudflare/workers-types@4.20240512.0)(vercel@34.2.2)(wrangler@3.57.0(@cloudflare/workers-types@4.20240512.0))':
     dependencies:
       acorn: 8.11.3
       ast-types: 0.14.2
@@ -3799,7 +3800,7 @@ snapshots:
       package-manager-manager: 0.2.0
       pcre-to-regexp: 1.1.0
       semver: 7.6.0
-      vercel: 34.2.0
+      vercel: 34.2.2
       wrangler: 3.57.0(@cloudflare/workers-types@4.20240512.0)
     optionalDependencies:
       '@cloudflare/workers-types': 4.20240512.0
@@ -4538,7 +4539,7 @@ snapshots:
       '@vercel/static-config': 3.0.0
       ts-morph: 12.0.0
 
-  '@vercel/next@4.2.11':
+  '@vercel/next@4.2.13':
     dependencies:
       '@vercel/nft': 0.27.0
     transitivePeerDependencies:
@@ -7328,13 +7329,13 @@ snapshots:
 
   validate-npm-package-name@5.0.1: {}
 
-  vercel@34.2.0:
+  vercel@34.2.2:
     dependencies:
       '@vercel/build-utils': 8.2.0
       '@vercel/fun': 1.1.0
       '@vercel/go': 3.1.1
       '@vercel/hydrogen': 1.0.2
-      '@vercel/next': 4.2.11
+      '@vercel/next': 4.2.13
       '@vercel/node': 3.1.5
       '@vercel/python': 4.2.0
       '@vercel/redwood': 2.0.9
