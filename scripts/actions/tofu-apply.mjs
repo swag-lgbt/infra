@@ -1,42 +1,9 @@
-import path from "node:path";
+import { Buffer } from "node:buffer";
 import fs from "node:fs/promises";
 import os from "node:os";
-import { Buffer } from "node:buffer";
-import { Logger } from "./util/logger.mjs";
+import path from "node:path";
 
-/**
- * Download the last successful tofu plan associated with this pull request
- *
- * @param {import("github-script").AsyncFunctionArguments} ctx
- */
-export const downloadTofuPlan = async ({
-	github,
-	context,
-	core,
-	glob,
-	io,
-	exec,
-	require,
-}) => {
-	Logger.init(core);
-
-	const lastTenCheckruns = await getLastTenCheckruns({ github, context });
-	const runId = getLastSuccessfulTofuPlanWorkflowRunId(lastTenCheckruns);
-	const zippedTofuPlanData = await downloadWorkflowArtifact({
-		github,
-		context,
-		runId,
-	});
-	const tofuPlanPath = await extractTofuPlanFromArchive({
-		zippedTofuPlanData,
-		exec,
-		io,
-		context,
-	});
-
-	Logger.log(`Tofu plan file is available at ${tofuPlanPath}. Success!`);
-	return tofuPlanPath;
-};
+import * as Logger from "./util/logger.mjs";
 
 /**
  * Retrieve the last 10 checkruns (i.e. workflows) that ran on this pull request.
@@ -46,10 +13,10 @@ export const downloadTofuPlan = async ({
 const getLastTenCheckruns = async ({ github, context }) => {
 	const pullRequestNumber = context.payload.pull_request?.number;
 
-	if (typeof pullRequestNumber !== "number") {
-		throw new Error("Failed to determine PR number");
-	} else {
+	if (typeof pullRequestNumber === "number") {
 		Logger.log(`Getting last 10 checkruns for PR #${pullRequestNumber}`);
+	} else {
+		throw new Error("Failed to determine PR number");
 	}
 
 	/**
@@ -102,176 +69,250 @@ const getLastTenCheckruns = async ({ github, context }) => {
 		{ pullRequestNumber },
 	);
 
-	Logger.debug(`Response: ${JSON.stringify(response, null, 2)}`);
+	Logger.debug(`Response: ${JSON.stringify(response, null, "  ")}`);
 
 	return response.repository.pullRequest.statusCheckRollup.contexts.nodes;
 };
 
 /**
- * Get the last successful checkrun from this pull request that was a successful Tofu Plan
+ * Get the last successful checkrun from this pull request with a given checkrun name
  *
  * @param {{
- *	name: string;
- *  conclusion: "FAILURE" | "SUCCESS" | "SKIPPED";
- *  startedAt: string;
- *  checkSuite: {
- *  	workflowRun: {
- *    	databaseId: number;
- *    }
- *  }
- * }[]} checkruns
+ * 	checkruns: {
+ *		name: string;
+ *  	conclusion: "FAILURE" | "SUCCESS" | "SKIPPED";
+ *  	startedAt: string;
+ *  	checkSuite: {
+ *  		workflowRun: {
+ *  	  	databaseId: number;
+ *  	  }
+ *  	}
+ * 	}[]
+ * 	tofuPlanCheckrunName: string;
+ * }} checkruns
  */
-const getLastSuccessfulTofuPlanWorkflowRunId = (checkruns) => {
-	const DESIRED_CONCLUSION = "SUCCESS";
-	const CHECKRUN_NAME = "Validate & Plan OpenTofu Changes";
-
-	Logger.debug(
-		`Attempting to find checkrun with name "${CHECKRUN_NAME}" and conclusion "${DESIRED_CONCLUSION}`,
-	);
-
+const getLastSuccessfulTofuPlanWorkflowRunId = ({
+	checkruns,
+	tofuPlanCheckrunName,
+}) => {
 	const lastSuccessfulTofuPlanWorkflowRun = checkruns
 		.filter(
 			({ name, conclusion }) =>
-				conclusion === DESIRED_CONCLUSION && name === CHECKRUN_NAME,
+				conclusion === "SUCCESS" && name === tofuPlanCheckrunName,
 		)
-		.reduce((a, b) => {
-			let aTimestamp = Date.parse(a.startedAt);
-			let bTimestamp = Date.parse(b.startedAt);
-			return aTimestamp > bTimestamp ? a : b;
+		.reduce((runA, runB) => {
+			const aTimestamp = Date.parse(runA.startedAt);
+			const bTimestamp = Date.parse(runB.startedAt);
+			return aTimestamp > bTimestamp ? runA : runB;
 		});
 
 	Logger.log(
-		`Found successful tofu plan:\n${JSON.stringify(lastSuccessfulTofuPlanWorkflowRun, null, 2)}`,
+		`Found successful tofu plan:
+		${JSON.stringify(lastSuccessfulTofuPlanWorkflowRun, null, "  ")}`,
 	);
 
 	return lastSuccessfulTofuPlanWorkflowRun.checkSuite.workflowRun.databaseId;
 };
 
 /**
- * Download an artifact named `tofu-plan` from a given workflow run
+ * Get the download URL for a workflow artifact with a given name from a given workflow run
  *
- * @param {Pick<import("github-script").AsyncFunctionArguments, "github" | "context"> & { runId: number }} ctx
+ * @param {Pick<import("github-script").AsyncFunctionArguments, "github" | "context"> & {
+ * 	runId: number;
+ *  artifactName: string;
+ * }} ctx
  */
-const downloadWorkflowArtifact = async ({ github, context, runId }) => {
-	Logger.debug(`Finding workflow run artifacts for runId: ${runId}`);
+const getWorkflowArtifactDownloadUrl = async ({
+	github,
+	context,
+	runId,
+	artifactName,
+}) => {
+	Logger.debug(
+		`Finding workflow run artifacts for runId ${runId} named "${artifactName}"`,
+	);
 
 	const {
 		data: { artifacts },
 	} = await github.rest.actions.listWorkflowRunArtifacts({
-		name: "tofu-plan",
+		name: artifactName,
+		// eslint-disable-next-line camelcase
 		run_id: runId,
 		...context.repo,
 	});
 
-	if (artifacts.length === 0) {
-		throw new Error(`No artifacts found for workflow run ${runId}`);
-	} else {
-		Logger.debug(
-			`Found ${artifacts.length} artifacts:\n${JSON.stringify(artifacts, null, 2)}`,
+	if (artifacts.length !== 1) {
+		throw new Error(
+			`Expected exactly one artifact named "${artifactName}" for workflow run ${runId}, \
+			found ${artifacts.length}`,
 		);
 	}
 
-	const ARTIFACT_NAME = "tofu-plan";
-
-	Logger.debug(`Finding artifact with name "${ARTIFACT_NAME}"`);
-
-	const tofuPlanArtifact = artifacts.find(({ name }) => name === ARTIFACT_NAME);
-	if (tofuPlanArtifact === undefined) {
-		throw new Error(`No artifact named "${ARTIFACT_NAME}"`);
-	} else {
-		Logger.debug(
-			`Found artifact named "${ARTIFACT_NAME}":\n${JSON.stringify(tofuPlanArtifact, null, 2)}`,
-		);
-	}
-
-	const tofuPlanArtifactId = tofuPlanArtifact.id;
+	const [{ id: tofuPlanArtifactId }] = artifacts;
 
 	Logger.debug(
 		`Finding download URL for artifact with id: ${tofuPlanArtifactId}`,
 	);
 
-	const { url: artifactUrl } = await github.rest.actions.downloadArtifact({
-		artifact_id: tofuPlanArtifactId,
+	const { url } = await github.rest.actions.downloadArtifact({
+		// eslint-disable-next-line camelcase
 		archive_format: "zip",
+		// eslint-disable-next-line camelcase
+		artifact_id: tofuPlanArtifactId,
 		...context.repo,
 	});
 
-	Logger.log(
-		`Downloading artifact ${tofuPlanArtifactId} ("${ARTIFACT_NAME}") from ${artifactUrl}`,
-	);
+	return url;
+};
 
-	const artifactResponse = await fetch(artifactUrl);
+/**
+ * Download a zip file and verify its Content-Length matches what we expect
+ *
+ * @param {string} url
+ */
+const downloadZipFile = async (url) => {
+	const artifactResponse = await globalThis.fetch(url);
 	if (!artifactResponse.ok) {
 		Logger.error(
-			`HTTP Error attempting to download artifact ${tofuPlanArtifactId}: (${artifactResponse.status} ${artifactResponse.statusText})`,
+			`HTTP Error attempting to download archive from ${url}: \
+			(${artifactResponse.status} ${artifactResponse.statusText}).
+			
+			${JSON.stringify(artifactResponse, null, "  ")}`,
 		);
 	}
-	Logger.debug(`Response:\n${JSON.stringify(artifactResponse, null, 2)}`);
 
-	const contentLength = artifactResponse.headers.get("Content-Length");
 	const zippedArtifactData = await artifactResponse.arrayBuffer();
 
-	if (!contentLength) {
-		Logger.warn(
-			`No Content-Length header sent back from GitHub, ZIP file may be invalid...`,
-		);
-	} else if (parseInt(contentLength) !== zippedArtifactData.byteLength) {
-		Logger.error(
-			`Expected ZIP archive to be ${contentLength} bytes, but only found ${zippedArtifactData.byteLength}`,
-		);
+	const contentLengthHeaderValue =
+		artifactResponse.headers.get("Content-Length");
+
+	if (contentLengthHeaderValue === null) {
+		Logger.debug("Didn't receive Content-Length header in response");
+	} else if (
+		parseInt(contentLengthHeaderValue, 10) === zippedArtifactData.byteLength
+	) {
+		Logger.log(`Downloaded ${contentLengthHeaderValue} bytes`);
 	} else {
-		Logger.log(`Downloaded ${contentLength} bytes`);
+		Logger.error(
+			`Expected ZIP archive to be ${contentLengthHeaderValue} bytes, \
+			but only found ${zippedArtifactData.byteLength}`,
+		);
 	}
 
 	return zippedArtifactData;
 };
 
 /**
+ * Unzip a file located at zipFilePath into the output directory at outputDirectoryPath
+ *
+ * @param {Pick<import("github-script").AsyncFunctionArguments, "exec" | "io"> & {
+ * 	zipFilePath: string;
+ *  outputDirectoryPath: string;
+ *  }} args
+ */
+const unzip = async ({ zipFilePath, outputDirectoryPath, io, exec }) => {
+	// `unzip` is included in the ubuntu runners
+	const unzipBinary = await io.which("unzip", true);
+	const unzipArgs = [zipFilePath, "-d", outputDirectoryPath];
+	Logger.debug(
+		`Extracting ZIP archive from ${zipFilePath} to ${outputDirectoryPath} \
+		with command \`${unzipBinary} ${unzipArgs.join(" ")}\``,
+	);
+
+	const exitCode = await exec.exec(unzipBinary, unzipArgs);
+	if (exitCode === 0) {
+		Logger.debug(
+			`Successfully extracted ZIP archive to ${outputDirectoryPath}`,
+		);
+	} else {
+		throw new Error(`Unzipping failed with non-zero exit code ${exitCode}`);
+	}
+};
+
+/**
  * Given an in-memory ZIP archive of a tofu plan, extract the plan file and return the path to it.
  *
- * @param {Pick<import("github-script").AsyncFunctionArguments, "exec" | "io" | "context"> & {zippedTofuPlanData: ArrayBuffer }} args
+ * @param {Pick<import("github-script").AsyncFunctionArguments, "io" | "context">} args
  */
-const extractTofuPlanFromArchive = async ({
+const createTempDirs = async ({ context, io }) => {
+	const parentDirPath = path.resolve(
+		os.tmpdir(),
+		`tofu-plan-${context.payload.pull_request?.number}`,
+	);
+	await io.mkdirP(parentDirPath);
+
+	const zipFilePath = path.join(parentDirPath, "tofu-plan.zip");
+
+	const outputDirectoryPath = path.join(parentDirPath, "tofu-plan-unzipped");
+	await io.mkdirP(outputDirectoryPath);
+
+	return { outputDirectoryPath, zipFilePath };
+};
+
+/**
+ * Given an in-memory ZIP archive of a tofu plan, extract the plan file and return the path to it.
+ *
+ * @param {Pick<import("github-script").AsyncFunctionArguments, "exec" | "io" | "context"> & {
+ * 	zippedTofuPlanData: ArrayBuffer
+ * }} args
+ */
+const extractTofuPlanZipArchive = async ({
 	zippedTofuPlanData,
 	exec,
 	io,
 	context,
 }) => {
-	const tempDirPath = path.resolve(
-		os.tmpdir(),
-		`tofu-plan-${context.payload.pull_request?.number}`,
-	);
-	await io.mkdirP(tempDirPath);
-	const zipFilePath = path.join(tempDirPath, "tofu-plan.zip");
-	const unzippedDirPath = path.join(tempDirPath, "tofu-plan-unzipped");
-	await io.mkdirP(unzippedDirPath);
+	const { zipFilePath, outputDirectoryPath } = await createTempDirs({
+		context,
+		io,
+	});
 
 	Logger.debug(`Writing ZIP archive to ${zipFilePath}`);
 	await fs.writeFile(zipFilePath, Buffer.from(zippedTofuPlanData));
 
-	// `unzip` is included in the ubuntu runners
-	const unzip = await io.which("unzip", true);
-	const unzipArgs = [zipFilePath, "-d", unzippedDirPath];
-	Logger.debug(
-		`Extracting ZIP archive from ${zipFilePath} to ${unzippedDirPath} with command \`${unzip} ${unzipArgs.join(" ")}\``,
+	await unzip({ exec, io, outputDirectoryPath, zipFilePath });
+
+	const files = await fs.readdir(outputDirectoryPath);
+	if (files.length === 1) {
+		const unzippedPlanFilePath = path.join(outputDirectoryPath, files[0]);
+
+		Logger.log(`Extracted tofu plan file to ${unzippedPlanFilePath}`);
+		return unzippedPlanFilePath;
+	}
+
+	throw Error(
+		`Expected to find exactly one file in ${outputDirectoryPath}, but found ${files.length}:
+		${JSON.stringify(files)}`,
 	);
+};
 
-	const exitCode = await exec.exec(unzip, unzipArgs);
-	if (exitCode !== 0) {
-		throw new Error(`Unzipping failed with non-zero exit code ${exitCode}`);
-	} else {
-		Logger.debug(`Successfully extracted ZIP archive to ${unzippedDirPath}`);
-	}
+/**
+ * Download the last successful tofu plan associated with this pull request
+ *
+ * @param {import("github-script").AsyncFunctionArguments} ctx
+ */
+export const downloadTofuPlan = async ({ github, context, core, io, exec }) => {
+	Logger.init(core);
 
-	const files = await fs.readdir(unzippedDirPath);
-	if (files.length !== 1) {
-		throw Error(
-			`Expected to find exactly one file in ${unzippedDirPath}, but found ${files.length}:\n${JSON.stringify(files)}`,
-		);
-	} else {
-		const UNZIPPED_PLAN_FILE_PATH = path.join(unzippedDirPath, files[0]);
+	const checkruns = await getLastTenCheckruns({ context, github });
+	const runId = getLastSuccessfulTofuPlanWorkflowRunId({
+		checkruns,
+		tofuPlanCheckrunName: "Validate & Plan OpenTofu Changes",
+	});
+	const tofuPlanDownloadUrl = await getWorkflowArtifactDownloadUrl({
+		artifactName: "tofu-plan",
+		context,
+		github,
+		runId,
+	});
+	const zippedTofuPlanData = await downloadZipFile(tofuPlanDownloadUrl);
+	const tofuPlanPath = await extractTofuPlanZipArchive({
+		context,
+		exec,
+		io,
+		zippedTofuPlanData,
+	});
 
-		Logger.log(`Extracted tofu plan file to ${UNZIPPED_PLAN_FILE_PATH}`);
-		return UNZIPPED_PLAN_FILE_PATH;
-	}
+	Logger.log(`Tofu plan file is available at ${tofuPlanPath}. Success!`);
+	return tofuPlanPath;
 };
