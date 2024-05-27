@@ -11,6 +11,11 @@ terraform {
   }
 }
 
+locals {
+  // use a consistent node version between local development and cloudflare pages
+  node_version = file("${path.root}/.node-version")
+}
+
 # For production OAuth, we can use the swagLGBT domain instead of a stytch.com one
 data "onepassword_item" "stytch_api_subdomain" {
   vault = var.onepassword.vault_uuid
@@ -70,12 +75,14 @@ resource "cloudflare_pages_project" "passport" {
     production {
       environment_variables = {
         OAUTH_REDIRECT_API = "https://api.stytch.swag.lgbt/v1/oauth/callback/oauth-callback-live-c24db04e-7018-4646-b66e-9bdce7194b32"
+        NODE_VERSION       = local.node_version
       }
     }
 
     preview {
       environment_variables = {
         OAUTH_REDIRECT_API = "https://test.stytch.com/v1/oauth/callback/oauth-callback-test-2b5d454f-e05d-498d-9d10-4abeb5a50591"
+        NODE_VERSION       = local.node_version
       }
     }
   }
