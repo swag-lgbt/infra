@@ -13,7 +13,9 @@ terraform {
 
 locals {
   // use a consistent node version between local development and cloudflare pages
-  node_version = file("${path.root}/.node-version")
+  root_package_json = jsondecode(file("${path.root}/package.json"))
+  node_version      = local.root_package_json.volta.node
+  pnpm_version      = local.root_package_json.volta.pnpm
 }
 
 # For production OAuth, we can use the swagLGBT domain instead of a stytch.com one
@@ -74,15 +76,23 @@ resource "cloudflare_pages_project" "passport" {
   deployment_configs {
     production {
       environment_variables = {
+        # Runtime vars
         OAUTH_REDIRECT_API = "https://api.stytch.swag.lgbt/v1/oauth/callback/oauth-callback-live-c24db04e-7018-4646-b66e-9bdce7194b32"
-        NODE_VERSION       = local.node_version
+
+        # Build vars
+        NODE_VERSION = local.node_version
+        PNPM_VERSION = local.pnpm_version
       }
     }
 
     preview {
       environment_variables = {
+        # Runtime vars
         OAUTH_REDIRECT_API = "https://test.stytch.com/v1/oauth/callback/oauth-callback-test-2b5d454f-e05d-498d-9d10-4abeb5a50591"
-        NODE_VERSION       = local.node_version
+
+        # Build vars
+        NODE_VERSION = local.node_version
+        PNPM_VERSION = local.pnpm_version
       }
     }
   }
