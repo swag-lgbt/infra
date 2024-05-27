@@ -16,7 +16,7 @@ module "passport" {
     zone_id      = var.cloudflare.zone_id
   }
 
-  passport = { subdomain = "account" }
+  passport = { subdomain = "passport" }
 
   onepassword = { vault_uuid = var.onepassword.vault_uuid }
 }
