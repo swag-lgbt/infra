@@ -1,9 +1,10 @@
 {
-	"name": "@swaglgbt/swaglgbt-scripts",
+	"name": "@swag-lgbt/scripts",
 	"description": "Various scripts to help with common tasks and CI",
 	"private": true,
 	"scripts": {
-		"test": "vitest"
+		"test": "vitest",
+		"lint": "eslint ./**/*.*js"
 	},
 	"author": "Cass Fridkin <cass@swag.lgbt>",
 	"license": "PPL",
