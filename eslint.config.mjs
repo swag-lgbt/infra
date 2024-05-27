@@ -1,25 +1,82 @@
-import { FlatCompat } from "@eslint/eslintrc";
+import fs from "node:fs";
+import path from "node:path";
+import url from "node:url";
 
-import { config, default as tseslint } from "typescript-eslint";
+import {
+	config,
+	default as tseslint,
+	parser as typescriptParser,
+} from "typescript-eslint";
 import eslint from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
-import packageJson from "eslint-plugin-package-json/configs/recommended";
+import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
+import gitignore from "eslint-config-flat-gitignore";
 
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+// @ts-expect-error eslint-plugin-qwik doesn't come with type definitions
+import qwikPlugin from "eslint-plugin-qwik";
 
-const __filename = fileURLToPath(import.meta.url);
+/* eslint-disable no-underscore-dangle */
+const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+/* eslint-enable no-underscore-dangle */
 
-const compat = new FlatCompat({
-	baseDirectory: __dirname,
-});
+const jsProjects = await findWorkspacePackagesNoCheck(__dirname);
+const tsConfigJsonPaths = jsProjects
+	.map(({ dir }) => path.join(dir, "tsconfig.json"))
+	.filter((tsconfigPath) => fs.existsSync(tsconfigPath));
+
+tsConfigJsonPaths.push(path.resolve(__dirname, "tsconfig.eslint.json"));
 
 export default config(
+	gitignore({ root: true }),
 	eslint.configs.all,
-	...tseslint.configs.strict,
-	...tseslint.configs.stylistic,
-	...compat.extends("plugin:qwik/recommended"),
-	packageJson,
+	...tseslint.configs.strictTypeChecked,
+	...tseslint.configs.stylisticTypeChecked,
+	{
+		languageOptions: {
+			ecmaVersion: "latest",
+			parser: typescriptParser,
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+				project: tsConfigJsonPaths,
+				sourceType: "module",
+				tsconfigRootDir: __dirname,
+			},
+		},
+		plugins: {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			qwik: qwikPlugin,
+		},
+		rules: {
+			"@typescript-eslint/restrict-template-expressions": [
+				"error",
+				{ allowNumber: true },
+			],
+			"max-lines": [
+				"warn",
+				{ max: 200, skipBlankLines: true, skipComments: true },
+			],
+			"max-lines-per-function": [
+				"warn",
+				{ max: 40, skipBlankLines: true, skipComments: true },
+			],
+			"no-global-assign": "error",
+			"no-magic-numbers": ["warn", { ignore: [0, 1] }],
+			"no-shadow-restricted-names": "error",
+			"no-ternary": "off",
+			"no-undefined": "off",
+			"no-void": ["error", { allowAsStatement: true }],
+			"one-var": ["error", "never"],
+			"sort-imports": [
+				"warn",
+				{
+					allowSeparatedGroups: true,
+					memberSyntaxSortOrder: ["all", "multiple", "single", "none"],
+				},
+			],
+		},
+	},
 	eslintConfigPrettier,
 );

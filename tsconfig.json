@@ -16,7 +16,8 @@
 		"incremental": true,
 		"isolatedModules": true,
 		"outDir": "tmp",
-		"noEmit": true
+		"noEmit": true,
+		"allowSyntheticDefaultImports": true
 	},
-	"files": ["./eslint.config.mjs"]
+	"files": ["./eslint.config.mjs", "./.pretterrc.mjs"]
 }

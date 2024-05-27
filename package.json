@@ -1,29 +1,35 @@
 {
-	"name": "swaglgbt",
+	"name": "swag-lgbt",
 	"private": true,
 	"description": "Monorepo for the swagLGBT project",
 	"authors": "Cass Fridkin <cass@swag.lgbt>",
-	"packageManager": "pnpm@9.1.0",
+	"packageManager": "pnpm@9.1.2",
 	"volta": {
 		"node": "20.12.2",
-		"pnpm": "9.1.0"
+		"pnpm": "9.1.2"
+	},
+	"scripts": {
+		"prettier": "prettier",
+		"eslint": "eslint",
+		"gen-readme-toc": "markdown-toc -i README.md --bullets \"-\""
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.1.0",
 		"@eslint/js": "^9.3.0",
+		"@pnpm/workspace.find-packages": "^2.0.7",
 		"@types/eslint": "^8.56.10",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/eslint__eslintrc": "^2.1.1",
 		"@types/eslint__js": "^8.42.3",
 		"@types/node": "^20.12.12",
-		"eslint": "^8.57.0",
+		"eslint": "^9.3.0",
+		"eslint-config-flat-gitignore": "^0.1.5",
 		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-package-json": "^0.13.1",
-		"eslint-plugin-qwik": "^1.5.4",
-		"jsonc-eslint-parser": "^2.4.0",
+		"eslint-plugin-qwik": "^1.5.5",
+		"globals": "^15.3.0",
+		"markdown-toc": "^1.2.0",
 		"prettier": "^3.2.5",
-		"prettier-plugin-packagejson": "^2.5.0",
 		"typescript": "^5.4.5",
-		"typescript-eslint": "^7.10.0"
+		"typescript-eslint": "^8.0.0-alpha.16"
 	}
 }
