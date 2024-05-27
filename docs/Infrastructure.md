@@ -162,8 +162,9 @@ Essentially what I want is for the state of swagLGBT's infrastructure to be a re
 
 Apps (in [`/apps`](/apps)) own their own tofu from ingress down to [resource requests](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/). Compute nodes, managed DB's, and other shared resources are defined in [`/infra`](/infra). All infrastructure is defined with [OpenTofu](https://opentofu.org/docs/language/) in `.tf` files, and is separated into different [modules](https://opentofu.org/docs/language/modules/).
 
-# Applications and Services
+## Bonus tips
 
-Obviously swagLGBT wouldn't be much of anything if there wasn't any code running. While by day I'm a programmer, writing application/systems/website code, there's not too too much of that here -- mostly, other people have written the code, and we just run it.
-
-This means swagLGBT runs code written in a variety of languages by a variety of people.
+- Prefer to keep all configuration in tofu files using [`yamlencode`](https://opentofu.org/docs/language/functions/yamlencode/), [`jsonencode`](https://opentofu.org/docs/language/functions/jsonencode), and [`tomlencode`](https://registry.terraform.io/providers/Tobotimus/toml/latest/docs/functions/encode) to generate YAML, JSON, and TOML at build-time. This way, variables can be passed in.
+- All modules should have a `variables.tf` for input variables, `main.tf` for infrastructure definitions, and optionally an `outputs.tf` if there's any outputs.
+- Running `just tofu <COMMAND>` will executed `tofu` with the necessary environment variables.
+- We shouldn't ever run `tofu apply` outside of CI. I haven't figured out a way to enforce that yet, though.
