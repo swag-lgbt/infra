@@ -12,9 +12,6 @@ import eslintConfigPrettier from "eslint-config-prettier";
 import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
 import gitignore from "eslint-config-flat-gitignore";
 
-// @ts-expect-error eslint-plugin-qwik doesn't come with type definitions
-import qwikPlugin from "eslint-plugin-qwik";
-
 /* eslint-disable no-underscore-dangle */
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,10 +42,6 @@ export default config(
 				tsconfigRootDir: __dirname,
 			},
 		},
-		plugins: {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			qwik: qwikPlugin,
-		},
 		rules: {
 			"@typescript-eslint/restrict-template-expressions": [
 				"error",
@@ -67,15 +60,10 @@ export default config(
 			"no-shadow-restricted-names": "error",
 			"no-ternary": "off",
 			"no-undefined": "off",
+			"no-useless-assignment": "off",
 			"no-void": ["error", { allowAsStatement: true }],
 			"one-var": ["error", "never"],
-			"sort-imports": [
-				"warn",
-				{
-					allowSeparatedGroups: true,
-					memberSyntaxSortOrder: ["all", "multiple", "single", "none"],
-				},
-			],
+			"sort-imports": "off",
 		},
 	},
 	eslintConfigPrettier,
