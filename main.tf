@@ -2,18 +2,6 @@ terraform {
   required_version = "~> 1.7.1"
 
   required_providers {
-    # digitalocean = {
-    #   source  = "digitalocean/digitalocean"
-    #   version = "~> 2.37"
-    # }
-    # kubernetes = {
-    #   source  = "hashicorp/kubernetes"
-    #   version = "~> 2.29"
-    # }
-    # helm = {
-    #   source  = "hashicorp/helm"
-    #   version = "~> 2.13"
-    # }
     cloudflare = {
       source  = "cloudflare/cloudflare"
       version = "~> 4.30"

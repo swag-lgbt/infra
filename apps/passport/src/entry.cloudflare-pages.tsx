@@ -17,8 +17,9 @@ import qwikCityPlan from "@qwik-city-plan";
 import render from "./entry.ssr";
 
 declare global {
-	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-	interface QwikCityPlatform extends PlatformCloudflarePages {}
+	interface QwikCityPlatform extends PlatformCloudflarePages {
+		env: Env;
+	}
 }
 
 const fetch = createQwikCity({ manifest, qwikCityPlan, render });

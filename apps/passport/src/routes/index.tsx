@@ -36,9 +36,10 @@ export default component$(() => (
 export const head: DocumentHead = {
 	meta: [
 		{
-			content: "Qwik site description",
+			content:
+				"Single Sign-On and account management for the swagLGBT universe",
 			name: "description",
 		},
 	],
-	title: "Welcome to Qwik",
+	title: "passportLGBT",
 };
