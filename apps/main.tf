@@ -7,20 +7,6 @@ terraform {
   }
 }
 
-module "passport" {
-  source = "./passport"
-
-  cloudflare = {
-    account_id   = var.cloudflare.account_id
-    project_name = "swag-lgbt-passport"
-    zone_id      = var.cloudflare.zone_id
-  }
-
-  passport = { subdomain = "passport" }
-
-  onepassword = { vault_uuid = var.onepassword.vault_uuid }
-}
-
 # module "secrets_injector" {
 #   source = "./secrets_injector"
 
