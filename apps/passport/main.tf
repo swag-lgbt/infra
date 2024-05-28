@@ -29,10 +29,10 @@ data "onepassword_item" "stytch" {
 #
 
 locals {
-  oauth_custom_domain_section_index = index(data.onepassword_item.stytch.section.*.label, "OAuth Custom Domain")
+  oauth_custom_domain_section_index = index(data.onepassword_item.stytch.section[*].label, "OAuth Custom Domain")
   oauth_custom_domain_section       = data.onepassword_item.stytch.section[local.oauth_custom_domain_section_index].field
-  oauth_custom_domain_name_index    = index(local.oauth_custom_domain_section.*.label, "name")
-  oauth_custom_domain_value_index   = index(local.oauth_custom_domain_section.*.label, "value")
+  oauth_custom_domain_name_index    = index(local.oauth_custom_domain_section[*].label, "name")
+  oauth_custom_domain_value_index   = index(local.oauth_custom_domain_section[*].label, "value")
 
   # These aren't actually sensitive, since anyone can see them by just getting DNS records for swag.lgbt
   oauth_custom_domain = {
@@ -86,21 +86,20 @@ locals {
 
 # Pull our stytch credentials from 1password and make them available to our pages project
 locals {
-  prod_env_section_index = index(data.onepassword_item.stytch.section.*.label, "Live Environment")
+  prod_env_section_index = index(data.onepassword_item.stytch.section[*].label, "Live Environment")
   prod_env_section       = data.onepassword_item.stytch.section[local.prod_env_section_index].field
 
-  preview_env_section_index = index(data.onepassword_item.stytch.section.*.label, "Test Environment")
-  preview_env_section       = data.onepassword_item.stytch.section[local.prod_env_section_index].field
+  preview_env_section = data.onepassword_item.stytch.section[local.prod_env_section_index].field
 
   stytch_credentials = {
     prod = {
-      public_token       = local.prod_env_section[index(local.prod_env_section.*.label, "Public token")].value
-      oauth_redirect_uri = local.prod_env_section[index(local.prod_env_section.*.label, "OAuth redirect URI")].value
+      public_token       = local.prod_env_section[index(local.prod_env_section[*].label, "Public token")].value
+      oauth_redirect_uri = local.prod_env_section[index(local.prod_env_section[*].label, "OAuth redirect URI")].value
     }
 
     preview = {
-      public_token       = local.preview_env_section[index(local.prod_env_section.*.label, "Public token")].value
-      oauth_redirect_uri = local.preview_env_section[index(local.prod_env_section.*.label, "OAuth redirect URI")].value
+      public_token       = local.preview_env_section[index(local.prod_env_section[*].label, "Public token")].value
+      oauth_redirect_uri = local.preview_env_section[index(local.prod_env_section[*].label, "OAuth redirect URI")].value
     }
   }
 }

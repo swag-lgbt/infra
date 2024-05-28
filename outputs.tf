@@ -1,4 +1,5 @@
 output "apps" {
-  value     = module.apps
-  sensitive = true
+  value       = module.apps
+  description = "Outputs from the apps module"
+  sensitive   = true
 }
